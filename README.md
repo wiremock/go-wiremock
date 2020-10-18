@@ -2,7 +2,7 @@
 [![Actions Status](https://github.com/walkerus/go-wiremock/workflows/build/badge.svg)](https://github.com/walkerus/go-wiremock/actions?query=workflow%3Abuild)
 [![Go Report Card](https://goreportcard.com/badge/github.com/walkerus/go-wiremock)](https://goreportcard.com/report/github.com/walkerus/go-wiremock)
 
-A simple package for stub http resource using WireMock admin
+A simple package for stub http resource using [WireMock admin](http://wiremock.org/docs/api/)
 
 ## Install
 ```go get https://github.com/walkerus/go-wiremock```
