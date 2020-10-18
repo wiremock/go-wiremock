@@ -3,7 +3,6 @@ package wiremock
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -24,21 +23,21 @@ func NewClient(url string) *Client {
 func (c *Client) StubFor(stubRule *StubRule) error {
 	requestBody, err := json.Marshal(stubRule)
 	if err != nil {
-		return errors.New(fmt.Sprintf("build stub request error: %s", err.Error()))
+		return fmt.Errorf("build stub request error: %s", err.Error())
 	}
 
 	res, err := http.Post(fmt.Sprintf("%s/%s", c.url, wiremockAdminURN), "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
-		return errors.New(fmt.Sprintf("stub request error: %s", err.Error()))
+		return fmt.Errorf("stub request error: %s", err.Error())
 	}
 
 	if res.StatusCode != http.StatusCreated {
 		bodyBytes, err := ioutil.ReadAll(res.Body)
 		if err != nil {
-			return errors.New(fmt.Sprintf("read response error: %s", err.Error()))
+			return fmt.Errorf("read response error: %s", err.Error())
 		}
 
-		return errors.New(fmt.Sprintf("bad response status: %d, response: %s", res.StatusCode, string(bodyBytes)))
+		return fmt.Errorf("bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
 	}
 
 	return nil
@@ -48,16 +47,16 @@ func (c *Client) StubFor(stubRule *StubRule) error {
 func (c *Client) Clear() error {
 	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/%s", c.url, wiremockAdminURN), nil)
 	if err != nil {
-		return errors.New(fmt.Sprintf("build cleare request error: %s", err.Error()))
+		return fmt.Errorf("build cleare request error: %s", err.Error())
 	}
 
 	res, err := (&http.Client{}).Do(req)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Clear request error: %s", err.Error()))
+		return fmt.Errorf("clear request error: %s", err.Error())
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return errors.New(fmt.Sprintf("bad response status: %d", res.StatusCode))
+		return fmt.Errorf("bad response status: %d", res.StatusCode)
 	}
 
 	return nil
