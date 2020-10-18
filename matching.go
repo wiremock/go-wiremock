@@ -1,5 +1,6 @@
 package wiremock
 
+// Types of params matching.
 const (
 	ParamEqualTo         ParamMatchingStrategy = "equalTo"
 	ParamMatches         ParamMatchingStrategy = "matches"
@@ -12,6 +13,7 @@ const (
 	ParamDoesNotMatch    ParamMatchingStrategy = "doesNotMatch"
 )
 
+// Types of url matching.
 const (
 	URLEqualToRule      URLMatchingStrategy = "url"
 	URLPathEqualToRule  URLMatchingStrategy = "urlPath"
@@ -19,7 +21,10 @@ const (
 	URLMatchingRule     URLMatchingStrategy = "urlPattern"
 )
 
+// URLMatchingStrategy is enum url matching type
 type URLMatchingStrategy string
+
+// ParamMatchingStrategy is enum params matching type
 type ParamMatchingStrategy string
 
 type URLMatcher struct {

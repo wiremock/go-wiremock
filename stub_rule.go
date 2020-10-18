@@ -5,17 +5,19 @@ import (
 	"net/http"
 )
 
+// ParamMatcherInterface is pair ParamMatchingStrategy key and string value
 type ParamMatcherInterface interface {
 	Strategy() ParamMatchingStrategy
 	Value() string
 }
 
+// URLMatcherInterface is pair URLMatchingStrategy key and string value
 type URLMatcherInterface interface {
 	Strategy() URLMatchingStrategy
 	Value() string
 }
 
-type Request struct {
+type request struct {
 	urlMatcher   URLMatcherInterface
 	method       string
 	headers      map[string]ParamMatcherInterface
@@ -24,78 +26,79 @@ type Request struct {
 	bodyPatterns []ParamMatcher
 }
 
-type Response struct {
+type response struct {
 	body    string
 	headers map[string]string
 	status  int64
 }
 
+// StubRule is struct of http request body to WireMock
 type StubRule struct {
-	request  Request
-	response Response
+	request  request
+	response response
 }
 
 // WithQueryParam adds query param and returns *StubRule
-func (r *StubRule) WithQueryParam(param string, matcher ParamMatcherInterface) *StubRule {
-	if r.request.queryParams == nil {
-		r.request.queryParams = map[string]ParamMatcherInterface{
+func (s *StubRule) WithQueryParam(param string, matcher ParamMatcherInterface) *StubRule {
+	if s.request.queryParams == nil {
+		s.request.queryParams = map[string]ParamMatcherInterface{
 			param: matcher,
 		}
-		return r
+		return s
 	}
 
-	r.request.queryParams[param] = matcher
-	return r
+	s.request.queryParams[param] = matcher
+	return s
 }
 
 // WithHeader adds header to Headers and returns *StubRule
-func (r *StubRule) WithHeader(header string, matcher ParamMatcherInterface) *StubRule {
-	if r.request.headers == nil {
-		r.request.headers = map[string]ParamMatcherInterface{
+func (s *StubRule) WithHeader(header string, matcher ParamMatcherInterface) *StubRule {
+	if s.request.headers == nil {
+		s.request.headers = map[string]ParamMatcherInterface{
 			header: matcher,
 		}
-		return r
+		return s
 	}
 
-	r.request.headers[header] = matcher
-	return r
+	s.request.headers[header] = matcher
+	return s
 }
 
 // WithCookie adds cookie and returns *StubRule
-func (r *StubRule) WithCookie(cookie string, matcher ParamMatcherInterface) *StubRule {
-	if r.request.cookies == nil {
-		r.request.cookies = map[string]ParamMatcherInterface{
+func (s *StubRule) WithCookie(cookie string, matcher ParamMatcherInterface) *StubRule {
+	if s.request.cookies == nil {
+		s.request.cookies = map[string]ParamMatcherInterface{
 			cookie: matcher,
 		}
-		return r
+		return s
 	}
 
-	r.request.cookies[cookie] = matcher
-	return r
+	s.request.cookies[cookie] = matcher
+	return s
 }
 
 // WithBodyPattern adds body pattern and returns *StubRule
-func (r *StubRule) WithBodyPattern(matcher ParamMatcher) *StubRule {
-	r.request.bodyPatterns = append(r.request.bodyPatterns, matcher)
-	return r
+func (s *StubRule) WithBodyPattern(matcher ParamMatcher) *StubRule {
+	s.request.bodyPatterns = append(s.request.bodyPatterns, matcher)
+	return s
 }
 
-// WithBodyPattern sets response and returns *StubRule
-func (r *StubRule) WillReturn(body string, headers map[string]string, status int64) *StubRule {
-	r.response.body = body
-	r.response.headers = headers
-	r.response.status = status
-	return r
+// WillReturn sets response and returns *StubRule
+func (s *StubRule) WillReturn(body string, headers map[string]string, status int64) *StubRule {
+	s.response.body = body
+	s.response.headers = headers
+	s.response.status = status
+	return s
 }
 
 // NewStubRule returns a new *StubRule.
 func NewStubRule(method string, urlMatcher URLMatcher) *StubRule {
 	return &StubRule{
-		request: Request{
+		request: request{
 			urlMatcher: urlMatcher,
 			method:     method,
 		},
-		response: Response{
+		response: response{
 			status: http.StatusOK,
 		},
 	}

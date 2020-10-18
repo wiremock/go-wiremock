@@ -10,6 +10,7 @@ import (
 
 const wiremockAdminURN = "__admin/mappings"
 
+// A Client implements requests to the wiremock server
 type Client struct {
 	url string
 }
