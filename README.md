@@ -6,6 +6,9 @@ A simple package for stub http resource using WireMock admin
 ```go get https://github.com/walkerus/go-wiremock```
 
 ## Usage
+```
+docker run -it --rm -p 8080:8080 rodolpheche/wiremock
+```
 ```go
 wiremockClient := NewClient("http://0.0.0.0:8080")
 defer wiremockClient.Clear()
