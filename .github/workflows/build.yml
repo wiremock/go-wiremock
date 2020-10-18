@@ -1,0 +1,12 @@
+name: build
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Linter
+        run: golangci-lint run
+      - name: Tests
+        run: go test
