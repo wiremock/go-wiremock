@@ -13,7 +13,7 @@ docker run -it --rm -p 8080:8080 rodolpheche/wiremock
 ```
 ```go
 wiremockClient := NewClient("http://0.0.0.0:8080")
-defer wiremockClient.Clear()
+defer wiremockClient.Reset()
 wiremockClient.StubFor(Post(URLPathEqualTo("/example")).
 		WithQueryParam("firstName", EqualTo("Jhon")).
 		WithQueryParam("lastName", NotMatching("Black")).
@@ -24,4 +24,6 @@ wiremockClient.StubFor(Post(URLPathEqualTo("/example")).
 			map[string]string{"Content-Type": "application/json"},
 			400,
 		))
+
+// testing code...
 ```

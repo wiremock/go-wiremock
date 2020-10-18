@@ -5,13 +5,13 @@ import (
 	"net/http"
 )
 
-// ParamMatcherInterface is pair ParamMatchingStrategy key and string value
+// ParamMatcherInterface is pair ParamMatchingStrategy and string matched value
 type ParamMatcherInterface interface {
 	Strategy() ParamMatchingStrategy
 	Value() string
 }
 
-// URLMatcherInterface is pair URLMatchingStrategy key and string value
+// URLMatcherInterface is pair URLMatchingStrategy and string matched value
 type URLMatcherInterface interface {
 	Strategy() URLMatchingStrategy
 	Value() string
