@@ -28,10 +28,14 @@ func TestStubRule_ToJson(t *testing.T) {
 			`{"code": 400, "detail": "detail"}`,
 			map[string]string{"Content-Type": "application/json"},
 			400,
-		)
+		).
+		AtPriority(1).
+		InScenario("Scenario").
+		WhenScenarioStateIs("Started").
+		WillSetStateTo("Stopped")
 
-	expectedRequestBody = `{"request":` +
-		`{"bodyPatterns":[{"equalToJson":"{\"meta\": \"information\"}"},{"contains":"information"}],` +
+	expectedRequestBody = `{"priority":1,"scenarioName":"Scenario","requiredScenarioState":"Started","newScenarioState":"Stopped",` +
+		`"request":{"bodyPatterns":[{"equalToJson":"{\"meta\": \"information\"}"},{"contains":"information"}],` +
 		`"cookies":{"session":{"equalToXml":"\u003cxml\u003e"}},` +
 		`"headers":{"x-session":{"matches":"^\\S+@\\S+$"}},` +
 		`"method":"POST","queryParameters":{"firstName":{"equalTo":"Jhon"},"lastName":{"doesNotMatch":"Black"}},"urlPath":"/example"},` +

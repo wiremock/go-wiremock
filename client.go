@@ -8,7 +8,10 @@ import (
 	"net/http"
 )
 
-const wiremockAdminURN = "__admin/mappings"
+const (
+	wiremockAdminURN         = "__admin"
+	wiremockAdminMappingsURN = "__admin/mappings"
+)
 
 // A Client implements requests to the wiremock server
 type Client struct {
@@ -27,10 +30,11 @@ func (c *Client) StubFor(stubRule *StubRule) error {
 		return fmt.Errorf("build stub request error: %s", err.Error())
 	}
 
-	res, err := http.Post(fmt.Sprintf("%s/%s", c.url, wiremockAdminURN), "application/json", bytes.NewBuffer(requestBody))
+	res, err := http.Post(fmt.Sprintf("%s/%s", c.url, wiremockAdminMappingsURN), "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		return fmt.Errorf("stub request error: %s", err.Error())
 	}
+	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusCreated {
 		bodyBytes, err := ioutil.ReadAll(res.Body)
@@ -46,7 +50,7 @@ func (c *Client) StubFor(stubRule *StubRule) error {
 
 // Clear deletes all stub mappings.
 func (c *Client) Clear() error {
-	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/%s", c.url, wiremockAdminURN), nil)
+	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/%s", c.url, wiremockAdminMappingsURN), nil)
 	if err != nil {
 		return fmt.Errorf("build cleare request error: %s", err.Error())
 	}
@@ -55,6 +59,7 @@ func (c *Client) Clear() error {
 	if err != nil {
 		return fmt.Errorf("clear request error: %s", err.Error())
 	}
+	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf("bad response status: %d", res.StatusCode)
@@ -65,10 +70,31 @@ func (c *Client) Clear() error {
 
 // Reset restores stub mappings to the defaults defined back in the backing store.
 func (c *Client) Reset() error {
-	res, err := http.Post(fmt.Sprintf("%s/%s/reset", c.url, wiremockAdminURN), "application/json", nil)
+	res, err := http.Post(fmt.Sprintf("%s/%s/reset", c.url, wiremockAdminMappingsURN), "application/json", nil)
 	if err != nil {
 		return fmt.Errorf("reset request error: %s", err.Error())
 	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		bodyBytes, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return fmt.Errorf("read response error: %s", err.Error())
+		}
+
+		return fmt.Errorf("bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
+	}
+
+	return nil
+}
+
+// ResetAllScenarios resets back to start of the state of all configured scenarios.
+func (c *Client) ResetAllScenarios() error {
+	res, err := http.Post(fmt.Sprintf("%s/%s/scenarios/reset", c.url, wiremockAdminURN), "application/json", nil)
+	if err != nil {
+		return fmt.Errorf("reset all scenarios request error: %s", err.Error())
+	}
+	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := ioutil.ReadAll(res.Body)
