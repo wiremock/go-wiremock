@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+const ScenarioStateStarted = "Started"
+
 // ParamMatcherInterface is pair ParamMatchingStrategy and string matched value
 type ParamMatcherInterface interface {
 	Strategy() ParamMatchingStrategy
@@ -34,17 +36,31 @@ type response struct {
 
 // StubRule is struct of http request body to WireMock
 type StubRule struct {
-	request  request
-	response response
+	request               request
+	response              response
+	priority              *int64
+	scenarioName          *string
+	requiredScenarioState *string
+	newScenarioState      *string
+}
+
+// NewStubRule returns a new *StubRule.
+func NewStubRule(method string, urlMatcher URLMatcher) *StubRule {
+	return &StubRule{
+		request: request{
+			urlMatcher: urlMatcher,
+			method:     method,
+		},
+		response: response{
+			status: http.StatusOK,
+		},
+	}
 }
 
 // WithQueryParam adds query param and returns *StubRule
 func (s *StubRule) WithQueryParam(param string, matcher ParamMatcherInterface) *StubRule {
 	if s.request.queryParams == nil {
-		s.request.queryParams = map[string]ParamMatcherInterface{
-			param: matcher,
-		}
-		return s
+		s.request.queryParams = map[string]ParamMatcherInterface{}
 	}
 
 	s.request.queryParams[param] = matcher
@@ -54,10 +70,7 @@ func (s *StubRule) WithQueryParam(param string, matcher ParamMatcherInterface) *
 // WithHeader adds header to Headers and returns *StubRule
 func (s *StubRule) WithHeader(header string, matcher ParamMatcherInterface) *StubRule {
 	if s.request.headers == nil {
-		s.request.headers = map[string]ParamMatcherInterface{
-			header: matcher,
-		}
-		return s
+		s.request.headers = map[string]ParamMatcherInterface{}
 	}
 
 	s.request.headers[header] = matcher
@@ -67,10 +80,7 @@ func (s *StubRule) WithHeader(header string, matcher ParamMatcherInterface) *Stu
 // WithCookie adds cookie and returns *StubRule
 func (s *StubRule) WithCookie(cookie string, matcher ParamMatcherInterface) *StubRule {
 	if s.request.cookies == nil {
-		s.request.cookies = map[string]ParamMatcherInterface{
-			cookie: matcher,
-		}
-		return s
+		s.request.cookies = map[string]ParamMatcherInterface{}
 	}
 
 	s.request.cookies[cookie] = matcher
@@ -91,17 +101,28 @@ func (s *StubRule) WillReturn(body string, headers map[string]string, status int
 	return s
 }
 
-// NewStubRule returns a new *StubRule.
-func NewStubRule(method string, urlMatcher URLMatcher) *StubRule {
-	return &StubRule{
-		request: request{
-			urlMatcher: urlMatcher,
-			method:     method,
-		},
-		response: response{
-			status: http.StatusOK,
-		},
-	}
+// AtPriority sets priority and returns *StubRule
+func (s *StubRule) AtPriority(priority int64) *StubRule {
+	s.priority = &priority
+	return s
+}
+
+// InScenario sets scenarioName and returns *StubRule
+func (s *StubRule) InScenario(scenarioName string) *StubRule {
+	s.scenarioName = &scenarioName
+	return s
+}
+
+// WhenScenarioStateIs sets requiredScenarioState and returns *StubRule
+func (s *StubRule) WhenScenarioStateIs(scenarioState string) *StubRule {
+	s.requiredScenarioState = &scenarioState
+	return s
+}
+
+// WillSetStateTo sets newScenarioState and returns *StubRule
+func (s *StubRule) WillSetStateTo(scenarioState string) *StubRule {
+	s.newScenarioState = &scenarioState
+	return s
 }
 
 // Post returns *StubRule for POST method.
@@ -124,15 +145,24 @@ func Put(urlMatchingPair URLMatcher) *StubRule {
 	return NewStubRule(http.MethodPut, urlMatchingPair)
 }
 
+//MarshalJSON makes json body for http request
 func (s *StubRule) MarshalJSON() ([]byte, error) {
 	jsonStubRule := struct {
-		Request  map[string]interface{} `json:"request"`
-		Response struct {
+		Priority                      *int64                 `json:"priority,omitempty"`
+		ScenarioName                  *string                `json:"scenarioName,omitempty"`
+		RequiredScenarioScenarioState *string                `json:"requiredScenarioState,omitempty"`
+		NewScenarioState              *string                `json:"newScenarioState,omitempty"`
+		Request                       map[string]interface{} `json:"request"`
+		Response                      struct {
 			Body    string            `json:"body,omitempty"`
 			Headers map[string]string `json:"headers,omitempty"`
 			Status  int64             `json:"status,omitempty"`
 		} `json:"response"`
 	}{}
+	jsonStubRule.Priority = s.priority
+	jsonStubRule.ScenarioName = s.scenarioName
+	jsonStubRule.RequiredScenarioScenarioState = s.requiredScenarioState
+	jsonStubRule.NewScenarioState = s.newScenarioState
 	jsonStubRule.Response.Body = s.response.body
 	jsonStubRule.Response.Headers = s.response.headers
 	jsonStubRule.Response.Status = s.response.status
