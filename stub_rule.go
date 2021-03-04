@@ -166,46 +166,57 @@ func (s *StubRule) MarshalJSON() ([]byte, error) {
 	jsonStubRule.Response.Body = s.response.body
 	jsonStubRule.Response.Headers = s.response.headers
 	jsonStubRule.Response.Status = s.response.status
-	jsonStubRule.Request = map[string]interface{}{
-		"method":                                s.request.method,
-		string(s.request.urlMatcher.Strategy()): s.request.urlMatcher.Value(),
+	jsonStubRule.Request = mapFrom(&s.request)
+	return json.Marshal(jsonStubRule)
+}
+
+//MarshalJSON makes json body for request to find requests
+//adding a separate MarshalJSON method for the request object
+//as it is required to convert the request to JSON
+func (r *request) MarshalJSON() ([]byte, error) {
+	return json.Marshal(mapFrom(r))
+}
+
+func mapFrom(r *request) map[string]interface{} {
+	req := map[string]interface{}{
+		"method":                        r.method,
+		string(r.urlMatcher.Strategy()): r.urlMatcher.Value(),
 	}
-	if len(s.request.bodyPatterns) > 0 {
-		bodyPatterns := make([]map[ParamMatchingStrategy]string, len(s.request.bodyPatterns))
-		for i, bodyPattern := range s.request.bodyPatterns {
+	if len(r.bodyPatterns) > 0 {
+		bodyPatterns := make([]map[ParamMatchingStrategy]string, len(r.bodyPatterns))
+		for i, bodyPattern := range r.bodyPatterns {
 			bodyPatterns[i] = map[ParamMatchingStrategy]string{
 				bodyPattern.Strategy(): bodyPattern.Value(),
 			}
 		}
-		jsonStubRule.Request["bodyPatterns"] = bodyPatterns
+		req["bodyPatterns"] = bodyPatterns
 	}
-	if len(s.request.headers) > 0 {
-		headers := make(map[string]map[ParamMatchingStrategy]string, len(s.request.bodyPatterns))
-		for key, header := range s.request.headers {
+	if len(r.headers) > 0 {
+		headers := make(map[string]map[ParamMatchingStrategy]string, len(r.bodyPatterns))
+		for key, header := range r.headers {
 			headers[key] = map[ParamMatchingStrategy]string{
 				header.Strategy(): header.Value(),
 			}
 		}
-		jsonStubRule.Request["headers"] = headers
+		req["headers"] = headers
 	}
-	if len(s.request.cookies) > 0 {
-		cookies := make(map[string]map[ParamMatchingStrategy]string, len(s.request.cookies))
-		for key, cookie := range s.request.cookies {
+	if len(r.cookies) > 0 {
+		cookies := make(map[string]map[ParamMatchingStrategy]string, len(r.cookies))
+		for key, cookie := range r.cookies {
 			cookies[key] = map[ParamMatchingStrategy]string{
 				cookie.Strategy(): cookie.Value(),
 			}
 		}
-		jsonStubRule.Request["cookies"] = cookies
+		req["cookies"] = cookies
 	}
-	if len(s.request.queryParams) > 0 {
-		params := make(map[string]map[ParamMatchingStrategy]string, len(s.request.queryParams))
-		for key, param := range s.request.queryParams {
+	if len(r.queryParams) > 0 {
+		params := make(map[string]map[ParamMatchingStrategy]string, len(r.queryParams))
+		for key, param := range r.queryParams {
 			params[key] = map[ParamMatchingStrategy]string{
 				param.Strategy(): param.Value(),
 			}
 		}
-		jsonStubRule.Request["queryParameters"] = params
+		req["queryParameters"] = params
 	}
-
-	return json.Marshal(jsonStubRule)
+	return req
 }

@@ -11,6 +11,7 @@ import (
 const (
 	wiremockAdminURN         = "__admin"
 	wiremockAdminMappingsURN = "__admin/mappings"
+	wiremockAdminFindURN     = "__admin/requests/find"
 )
 
 // A Client implements requests to the wiremock server
@@ -106,4 +107,37 @@ func (c *Client) ResetAllScenarios() error {
 	}
 
 	return nil
+}
+
+// FindFor finds requests that were made for a StubRule
+func (c *Client) FindRequestsFor(stubRule *StubRule) (map[string]interface{}, error) {
+	//to find requests matching a stub, we need only the request portion of the stub
+	requestBody, err := json.Marshal(&stubRule.request)
+	if err != nil {
+		return nil, fmt.Errorf("build stub request error: %s", err.Error())
+	}
+
+	res, err := http.Post(fmt.Sprintf("%s/%s", c.url, wiremockAdminFindURN), "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		return nil, fmt.Errorf("stub request error: %s", err.Error())
+	}
+	defer res.Body.Close()
+
+	bodyBytes, err := ioutil.ReadAll(res.Body)
+	if res.StatusCode != http.StatusOK {
+		if err != nil {
+			return nil, fmt.Errorf("read response error: %s", err.Error())
+		}
+
+		return nil, fmt.Errorf("bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
+	}
+
+	var response map[string]interface{}
+	err = json.Unmarshal(bodyBytes, &response)
+
+	if err != nil {
+		return nil, fmt.Errorf("error: %s unmarshalling response: %s", err, response)
+	}
+
+	return response, nil
 }
