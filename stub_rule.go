@@ -209,3 +209,14 @@ func (s *StubRule) MarshalJSON() ([]byte, error) {
 
 	return json.Marshal(jsonStubRule)
 }
+
+//MarshalJSON makes json body for request to find requests
+//adding a separate MarshalJSON method for the request object
+//as it is required to convert the request to JSON
+func (r *request) MarshalJSON() ([]byte, error) {
+	req := map[string]interface{}{
+		"method":                        r.method,
+		string(r.urlMatcher.Strategy()): r.urlMatcher.Value(),
+	}
+	return json.Marshal(req)
+}
