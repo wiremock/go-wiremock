@@ -3,6 +3,7 @@ package wiremock
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 )
 
 const ScenarioStateStarted = "Started"
@@ -178,6 +179,7 @@ func (s *StubRule) MarshalJSON() ([]byte, error) {
 	jsonStubRule.Response.Body = s.response.body
 	jsonStubRule.Response.Headers = s.response.headers
 	jsonStubRule.Response.Status = s.response.status
+	jsonStubRule.Response.FixedDelayMilliseconds = int(s.response.fixedDelayMilliseconds.Milliseconds())
 	jsonStubRule.Request = map[string]interface{}{
 		"method":                                s.request.method,
 		string(s.request.urlMatcher.Strategy()): s.request.urlMatcher.Value(),
