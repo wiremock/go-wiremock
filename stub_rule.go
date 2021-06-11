@@ -29,9 +29,10 @@ type request struct {
 }
 
 type response struct {
-	body    string
-	headers map[string]string
-	status  int64
+	body                   string
+	headers                map[string]string
+	status                 int64
+	fixedDelayMilliseconds time.Duration
 }
 
 // StubRule is struct of http request body to WireMock
@@ -101,6 +102,11 @@ func (s *StubRule) WillReturn(body string, headers map[string]string, status int
 	return s
 }
 
+func (s *StubRule) WithFixedDelayMilliseconds(time time.Duration) *StubRule {
+	s.response.fixedDelayMilliseconds = time
+	return s
+}
+
 // AtPriority sets priority and returns *StubRule
 func (s *StubRule) AtPriority(priority int64) *StubRule {
 	s.priority = &priority
@@ -145,6 +151,11 @@ func Put(urlMatchingPair URLMatcher) *StubRule {
 	return NewStubRule(http.MethodPut, urlMatchingPair)
 }
 
+// Patch returns *StubRule for PATCH method.
+func Patch(urlMatchingPair URLMatcher) *StubRule {
+	return NewStubRule(http.MethodPatch, urlMatchingPair)
+}
+
 //MarshalJSON makes json body for http request
 func (s *StubRule) MarshalJSON() ([]byte, error) {
 	jsonStubRule := struct {
@@ -154,9 +165,10 @@ func (s *StubRule) MarshalJSON() ([]byte, error) {
 		NewScenarioState              *string                `json:"newScenarioState,omitempty"`
 		Request                       map[string]interface{} `json:"request"`
 		Response                      struct {
-			Body    string            `json:"body,omitempty"`
-			Headers map[string]string `json:"headers,omitempty"`
-			Status  int64             `json:"status,omitempty"`
+			Body                   string            `json:"body,omitempty"`
+			Headers                map[string]string `json:"headers,omitempty"`
+			Status                 int64             `json:"status,omitempty"`
+			FixedDelayMilliseconds int               `json:"fixedDelayMilliseconds,omitempty"`
 		} `json:"response"`
 	}{}
 	jsonStubRule.Priority = s.priority
