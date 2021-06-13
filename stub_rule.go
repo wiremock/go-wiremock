@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"time"
+
+	uuidPkg "github.com/google/uuid"
 )
 
 const ScenarioStateStarted = "Started"
@@ -20,15 +22,6 @@ type URLMatcherInterface interface {
 	Value() string
 }
 
-type request struct {
-	urlMatcher   URLMatcherInterface
-	method       string
-	headers      map[string]ParamMatcherInterface
-	queryParams  map[string]ParamMatcherInterface
-	cookies      map[string]ParamMatcherInterface
-	bodyPatterns []ParamMatcher
-}
-
 type response struct {
 	body                   string
 	headers                map[string]string
@@ -36,9 +29,10 @@ type response struct {
 	fixedDelayMilliseconds time.Duration
 }
 
-// StubRule is struct of http request body to WireMock
+// StubRule is struct of http Request body to WireMock
 type StubRule struct {
-	request               request
+	uuid                  string
+	request               *Request
 	response              response
 	priority              *int64
 	scenarioName          *string
@@ -48,50 +42,42 @@ type StubRule struct {
 
 // NewStubRule returns a new *StubRule.
 func NewStubRule(method string, urlMatcher URLMatcher) *StubRule {
+	uuid, _ := uuidPkg.NewRandom()
 	return &StubRule{
-		request: request{
-			urlMatcher: urlMatcher,
-			method:     method,
-		},
+		uuid:    uuid.String(),
+		request: NewRequest(method, urlMatcher),
 		response: response{
 			status: http.StatusOK,
 		},
 	}
 }
 
+// Request is getter for Request
+func (s *StubRule) Request() *Request {
+	return s.request
+}
+
 // WithQueryParam adds query param and returns *StubRule
 func (s *StubRule) WithQueryParam(param string, matcher ParamMatcherInterface) *StubRule {
-	if s.request.queryParams == nil {
-		s.request.queryParams = map[string]ParamMatcherInterface{}
-	}
-
-	s.request.queryParams[param] = matcher
+	s.request.WithQueryParam(param, matcher)
 	return s
 }
 
 // WithHeader adds header to Headers and returns *StubRule
 func (s *StubRule) WithHeader(header string, matcher ParamMatcherInterface) *StubRule {
-	if s.request.headers == nil {
-		s.request.headers = map[string]ParamMatcherInterface{}
-	}
-
-	s.request.headers[header] = matcher
+	s.request.WithHeader(header, matcher)
 	return s
 }
 
 // WithCookie adds cookie and returns *StubRule
 func (s *StubRule) WithCookie(cookie string, matcher ParamMatcherInterface) *StubRule {
-	if s.request.cookies == nil {
-		s.request.cookies = map[string]ParamMatcherInterface{}
-	}
-
-	s.request.cookies[cookie] = matcher
+	s.request.WithCookie(cookie, matcher)
 	return s
 }
 
 // WithBodyPattern adds body pattern and returns *StubRule
 func (s *StubRule) WithBodyPattern(matcher ParamMatcher) *StubRule {
-	s.request.bodyPatterns = append(s.request.bodyPatterns, matcher)
+	s.request.WithBodyPattern(matcher)
 	return s
 }
 
@@ -103,8 +89,15 @@ func (s *StubRule) WillReturn(body string, headers map[string]string, status int
 	return s
 }
 
+// WithFixedDelayMilliseconds sets fixed delay milliseconds for response
 func (s *StubRule) WithFixedDelayMilliseconds(time time.Duration) *StubRule {
 	s.response.fixedDelayMilliseconds = time
+	return s
+}
+
+// WithBasicAuth adds basic auth credentials
+func (s *StubRule) WithBasicAuth(username, password string) *StubRule {
+	s.request.WithBasicAuth(username, password)
 	return s
 }
 
@@ -132,6 +125,11 @@ func (s *StubRule) WillSetStateTo(scenarioState string) *StubRule {
 	return s
 }
 
+// UUID is getter for uuid
+func (s *StubRule) UUID() string {
+	return s.uuid
+}
+
 // Post returns *StubRule for POST method.
 func Post(urlMatchingPair URLMatcher) *StubRule {
 	return NewStubRule(http.MethodPost, urlMatchingPair)
@@ -157,14 +155,16 @@ func Patch(urlMatchingPair URLMatcher) *StubRule {
 	return NewStubRule(http.MethodPatch, urlMatchingPair)
 }
 
-//MarshalJSON makes json body for http request
+//MarshalJSON makes json body for http Request
 func (s *StubRule) MarshalJSON() ([]byte, error) {
 	jsonStubRule := struct {
-		Priority                      *int64                 `json:"priority,omitempty"`
-		ScenarioName                  *string                `json:"scenarioName,omitempty"`
-		RequiredScenarioScenarioState *string                `json:"requiredScenarioState,omitempty"`
-		NewScenarioState              *string                `json:"newScenarioState,omitempty"`
-		Request                       map[string]interface{} `json:"request"`
+		UUID                          string   `json:"uuid,omitempty"`
+		ID                            string   `json:"id,omitempty"`
+		Priority                      *int64   `json:"priority,omitempty"`
+		ScenarioName                  *string  `json:"scenarioName,omitempty"`
+		RequiredScenarioScenarioState *string  `json:"requiredScenarioState,omitempty"`
+		NewScenarioState              *string  `json:"newScenarioState,omitempty"`
+		Request                       *Request `json:"request"`
 		Response                      struct {
 			Body                   string            `json:"body,omitempty"`
 			Headers                map[string]string `json:"headers,omitempty"`
@@ -180,46 +180,9 @@ func (s *StubRule) MarshalJSON() ([]byte, error) {
 	jsonStubRule.Response.Headers = s.response.headers
 	jsonStubRule.Response.Status = s.response.status
 	jsonStubRule.Response.FixedDelayMilliseconds = int(s.response.fixedDelayMilliseconds.Milliseconds())
-	jsonStubRule.Request = map[string]interface{}{
-		"method":                                s.request.method,
-		string(s.request.urlMatcher.Strategy()): s.request.urlMatcher.Value(),
-	}
-	if len(s.request.bodyPatterns) > 0 {
-		bodyPatterns := make([]map[ParamMatchingStrategy]string, len(s.request.bodyPatterns))
-		for i, bodyPattern := range s.request.bodyPatterns {
-			bodyPatterns[i] = map[ParamMatchingStrategy]string{
-				bodyPattern.Strategy(): bodyPattern.Value(),
-			}
-		}
-		jsonStubRule.Request["bodyPatterns"] = bodyPatterns
-	}
-	if len(s.request.headers) > 0 {
-		headers := make(map[string]map[ParamMatchingStrategy]string, len(s.request.bodyPatterns))
-		for key, header := range s.request.headers {
-			headers[key] = map[ParamMatchingStrategy]string{
-				header.Strategy(): header.Value(),
-			}
-		}
-		jsonStubRule.Request["headers"] = headers
-	}
-	if len(s.request.cookies) > 0 {
-		cookies := make(map[string]map[ParamMatchingStrategy]string, len(s.request.cookies))
-		for key, cookie := range s.request.cookies {
-			cookies[key] = map[ParamMatchingStrategy]string{
-				cookie.Strategy(): cookie.Value(),
-			}
-		}
-		jsonStubRule.Request["cookies"] = cookies
-	}
-	if len(s.request.queryParams) > 0 {
-		params := make(map[string]map[ParamMatchingStrategy]string, len(s.request.queryParams))
-		for key, param := range s.request.queryParams {
-			params[key] = map[ParamMatchingStrategy]string{
-				param.Strategy(): param.Value(),
-			}
-		}
-		jsonStubRule.Request["queryParameters"] = params
-	}
+	jsonStubRule.Request = s.request
+	jsonStubRule.ID = s.uuid
+	jsonStubRule.UUID = s.uuid
 
 	return json.Marshal(jsonStubRule)
 }

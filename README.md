@@ -4,6 +4,9 @@
 
 The simple package to stub HTTP resource using [WireMock admin](http://wiremock.org/docs/api/)
 
+## Documentation
+[![GoDoc](https://godoc.org/github.com/walkerus/go-wiremock?status.svg)](http://godoc.org/github.com/walkerus/go-wiremock)
+
 ## Usage
 ```
 docker run -it --rm -p 8080:8080 rodolpheche/wiremock
@@ -13,6 +16,7 @@ package main
 
 import (
     "testing"
+
     "github.com/walkerus/go-wiremock"
 )
 
@@ -49,15 +53,23 @@ func TestSome(t *testing.T) {
             InScenario("Set status").
             WillSetStateTo("Status started"))
 
-    wiremockClient.StubFor(wiremock.Get(wiremock.URLPathEqualTo("/status")).
-            WillReturn(
-                `{"status": "started"}`,
-                map[string]string{"Content-Type": "application/json"},
-                200,
-            ).
-            InScenario("Set status").
-            WhenScenarioStateIs("Status started"))
+    statusStub := wiremock.Get(wiremock.URLPathEqualTo("/status")).
+		WillReturn(
+			`{"status": "started"}`,
+			map[string]string{"Content-Type": "application/json"},
+			200,
+		).
+		InScenario("Set status").
+		WhenScenarioStateIs("Status started")
+    wiremockClient.StubFor(statusStub)
 
     //testing code...
+    
+    verifyResult, _ := wiremockClient.Verify(statusStub.Request(), 1)
+    if !verifyResult {
+		//...
+    }
+    
+    wiremockClient.DeleteStub(statusStub)
 }
 ```

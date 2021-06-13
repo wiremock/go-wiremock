@@ -21,28 +21,29 @@ const (
 	URLMatchingRule     URLMatchingStrategy = "urlPattern"
 )
 
-// URLMatchingStrategy is enum url matching type
+// URLMatchingStrategy is enum url matching type.
 type URLMatchingStrategy string
 
-// ParamMatchingStrategy is enum params matching type
+// ParamMatchingStrategy is enum params matching type.
 type ParamMatchingStrategy string
 
+// URLMatcher is structure for defining the type of url matching.
 type URLMatcher struct {
 	strategy URLMatchingStrategy
 	value    string
 }
 
-// Strategy returns URLMatchingStrategy of URLMatcher
+// Strategy returns URLMatchingStrategy of URLMatcher.
 func (m URLMatcher) Strategy() URLMatchingStrategy {
 	return m.strategy
 }
 
-// Value returns value of URLMatcher
+// Value returns value of URLMatcher.
 func (m URLMatcher) Value() string {
 	return m.value
 }
 
-// URLEqualTo returns URLMatcher with URLEqualToRule matching strategy
+// URLEqualTo returns URLMatcher with URLEqualToRule matching strategy.
 func URLEqualTo(url string) URLMatcher {
 	return URLMatcher{
 		strategy: URLEqualToRule,
@@ -50,7 +51,7 @@ func URLEqualTo(url string) URLMatcher {
 	}
 }
 
-// URLPathEqualTo returns URLMatcher with URLPathEqualToRule matching strategy
+// URLPathEqualTo returns URLMatcher with URLPathEqualToRule matching strategy.
 func URLPathEqualTo(url string) URLMatcher {
 	return URLMatcher{
 		strategy: URLPathEqualToRule,
@@ -58,7 +59,7 @@ func URLPathEqualTo(url string) URLMatcher {
 	}
 }
 
-// URLPathMatching returns URLMatcher with URLPathMatchingRule matching strategy
+// URLPathMatching returns URLMatcher with URLPathMatchingRule matching strategy.
 func URLPathMatching(url string) URLMatcher {
 	return URLMatcher{
 		strategy: URLPathMatchingRule,
@@ -66,7 +67,7 @@ func URLPathMatching(url string) URLMatcher {
 	}
 }
 
-// URLPathMatching returns URLMatcher with URLMatchingRule matching strategy
+// URLMatching returns URLMatcher with URLMatchingRule matching strategy.
 func URLMatching(url string) URLMatcher {
 	return URLMatcher{
 		strategy: URLMatchingRule,
@@ -74,22 +75,23 @@ func URLMatching(url string) URLMatcher {
 	}
 }
 
+// ParamMatcher is structure for defining the type of params.
 type ParamMatcher struct {
 	strategy ParamMatchingStrategy
 	value    string
 }
 
-// Strategy returns ParamMatchingStrategy of ParamMatcher
+// Strategy returns ParamMatchingStrategy of ParamMatcher.
 func (m ParamMatcher) Strategy() ParamMatchingStrategy {
 	return m.strategy
 }
 
-// Value returns value of ParamMatcher
+// Value returns value of ParamMatcher.
 func (m ParamMatcher) Value() string {
 	return m.value
 }
 
-// EqualTo returns ParamMatcher with ParamEqualTo matching strategy
+// EqualTo returns ParamMatcher with ParamEqualTo matching strategy.
 func EqualTo(param string) ParamMatcher {
 	return ParamMatcher{
 		strategy: ParamEqualTo,
@@ -97,7 +99,7 @@ func EqualTo(param string) ParamMatcher {
 	}
 }
 
-// Matches returns ParamMatcher with ParamMatches matching strategy
+// Matching returns ParamMatcher with ParamMatches matching strategy.
 func Matching(param string) ParamMatcher {
 	return ParamMatcher{
 		strategy: ParamMatches,
@@ -105,7 +107,7 @@ func Matching(param string) ParamMatcher {
 	}
 }
 
-// Contains returns ParamMatcher with ParamContains matching strategy
+// Contains returns ParamMatcher with ParamContains matching strategy.
 func Contains(param string) ParamMatcher {
 	return ParamMatcher{
 		strategy: ParamContains,
@@ -113,7 +115,7 @@ func Contains(param string) ParamMatcher {
 	}
 }
 
-// Contains returns ParamMatcher with ParamEqualToXml matching strategy
+// EqualToXml returns ParamMatcher with ParamEqualToXml matching strategy.
 func EqualToXml(param string) ParamMatcher {
 	return ParamMatcher{
 		strategy: ParamEqualToXml,
@@ -121,7 +123,7 @@ func EqualToXml(param string) ParamMatcher {
 	}
 }
 
-// EqualToJson returns ParamMatcher with ParamEqualToJson matching strategy
+// EqualToJson returns ParamMatcher with ParamEqualToJson matching strategy.
 func EqualToJson(param string) ParamMatcher {
 	return ParamMatcher{
 		strategy: ParamEqualToJson,
@@ -129,7 +131,7 @@ func EqualToJson(param string) ParamMatcher {
 	}
 }
 
-// MatchingXPath returns ParamMatcher with ParamMatchesXPath matching strategy
+// MatchingXPath returns ParamMatcher with ParamMatchesXPath matching strategy.
 func MatchingXPath(param string) ParamMatcher {
 	return ParamMatcher{
 		strategy: ParamMatchesXPath,
@@ -137,7 +139,7 @@ func MatchingXPath(param string) ParamMatcher {
 	}
 }
 
-// MatchingMatchesJsonPath returns ParamMatcher with ParamMatchesJsonPath matching strategy
+// MatchingJsonPath returns ParamMatcher with ParamMatchesJsonPath matching strategy.
 func MatchingJsonPath(param string) ParamMatcher {
 	return ParamMatcher{
 		strategy: ParamMatchesJsonPath,
@@ -145,7 +147,7 @@ func MatchingJsonPath(param string) ParamMatcher {
 	}
 }
 
-// DoesNotMatch returns ParamMatcher with ParamDoesNotMatch matching strategy
+// NotMatching returns ParamMatcher with ParamDoesNotMatch matching strategy.
 func NotMatching(param string) ParamMatcher {
 	return ParamMatcher{
 		strategy: ParamDoesNotMatch,
