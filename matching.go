@@ -66,7 +66,7 @@ func URLPathMatching(url string) URLMatcher {
 	}
 }
 
-// URLPathMatching returns URLMatcher with URLMatchingRule matching strategy
+// URLMatching returns URLMatcher with URLMatchingRule matching strategy
 func URLMatching(url string) URLMatcher {
 	return URLMatcher{
 		strategy: URLMatchingRule,
@@ -113,7 +113,7 @@ func Contains(param string) ParamMatcher {
 	}
 }
 
-// Contains returns ParamMatcher with ParamEqualToXml matching strategy
+// EqualToXml returns ParamMatcher with ParamEqualToXml matching strategy
 func EqualToXml(param string) ParamMatcher {
 	return ParamMatcher{
 		strategy: ParamEqualToXml,
@@ -137,7 +137,7 @@ func MatchingXPath(param string) ParamMatcher {
 	}
 }
 
-// MatchingMatchesJsonPath returns ParamMatcher with ParamMatchesJsonPath matching strategy
+// MatchingJsonPath returns ParamMatcher with ParamMatchesJsonPath matching strategy
 func MatchingJsonPath(param string) ParamMatcher {
 	return ParamMatcher{
 		strategy: ParamMatchesJsonPath,
@@ -145,7 +145,7 @@ func MatchingJsonPath(param string) ParamMatcher {
 	}
 }
 
-// DoesNotMatch returns ParamMatcher with ParamDoesNotMatch matching strategy
+// NotMatching returns ParamMatcher with ParamDoesNotMatch matching strategy
 func NotMatching(param string) ParamMatcher {
 	return ParamMatcher{
 		strategy: ParamDoesNotMatch,
