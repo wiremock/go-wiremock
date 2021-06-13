@@ -27,7 +27,7 @@ type URLMatchingStrategy string
 // ParamMatchingStrategy is enum params matching type.
 type ParamMatchingStrategy string
 
-// URLMatcher is structure for defining the type of url matching
+// URLMatcher is structure for defining the type of url matching.
 type URLMatcher struct {
 	strategy URLMatchingStrategy
 	value    string
@@ -75,7 +75,7 @@ func URLMatching(url string) URLMatcher {
 	}
 }
 
-// ParamMatcher is structure for defining the type of params
+// ParamMatcher is structure for defining the type of params.
 type ParamMatcher struct {
 	strategy ParamMatchingStrategy
 	value    string
