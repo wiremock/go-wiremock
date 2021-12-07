@@ -3,6 +3,8 @@ package wiremock
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -24,6 +26,9 @@ func TestStubRule_ToJson(t *testing.T) {
 		WithQueryParam("lastName", NotMatching("Black")).
 		WithBodyPattern(EqualToJson(`{"meta": "information"}`)).
 		WithBodyPattern(Contains("information")).
+		WithMultipartPattern(func(request *Request) {
+			request.WithBodyPattern(Contains("test"))
+		}).
 		WithBasicAuth("username", "password").
 		WithHeader("x-session", Matching("^\\S+@\\S+$")).
 		WithCookie("session", EqualToXml("<xml>")).
@@ -38,18 +43,26 @@ func TestStubRule_ToJson(t *testing.T) {
 		WhenScenarioStateIs("Started").
 		WillSetStateTo("Stopped")
 
-	expectedRequestBody = `{"uuid":"%s","id":"%s","priority":1,"scenarioName":"Scenario","requiredScenarioState":"Started","newScenarioState":"Stopped",` +
-		`"request":{"basicAuthCredentials":{"password":"password","username":"username"},"bodyPatterns":[{"equalToJson":"{\"meta\": \"information\"}"},{"contains":"information"}],` +
-		`"cookies":{"session":{"equalToXml":"\u003cxml\u003e"}},` +
-		`"headers":{"x-session":{"matches":"^\\S+@\\S+$"}},` +
-		`"method":"POST","queryParameters":{"firstName":{"equalTo":"Jhon"},"lastName":{"doesNotMatch":"Black"}},"urlPath":"/example"},` +
-		`"response":{"body":"{\"code\": 400, \"detail\": \"detail\"}","headers":{"Content-Type":"application/json"},"status":400,"fixedDelayMilliseconds":5000}}`
-	result, err = json.Marshal(postStubRule)
-
+	rawExpectedRequestBody, err := ioutil.ReadFile("expected-template.json")
+	if err != nil {
+		t.Fatalf("failed to read expected-template.json %v", err)
+	}
+	rawResult, err := json.Marshal(postStubRule)
 	if err != nil {
 		t.Fatalf("StubRole json.Marshal error: %v", err)
 	}
-	if string(result) != fmt.Sprintf(expectedRequestBody, postStubRule.uuid, postStubRule.uuid) {
-		t.Errorf("expected requestBody %q; got %q", expectedRequestBody, string(result))
+	var expected map[string]interface{}
+	err = json.Unmarshal([]byte(fmt.Sprintf(string(rawExpectedRequestBody), postStubRule.uuid, postStubRule.uuid)), &expected)
+	if err != nil {
+		t.Fatalf("StubRole json.Unmarshal error: %v", err)
+	}
+	var parsedResult map[string]interface{}
+	err = json.Unmarshal(rawResult, &parsedResult)
+	if err != nil {
+		t.Fatalf("StubRole json.Unmarshal error: %v", err)
+	}
+
+	if !reflect.DeepEqual(parsedResult, expected) {
+		t.Errorf("expected requestBody\n%v\n%v", parsedResult, expected)
 	}
 }

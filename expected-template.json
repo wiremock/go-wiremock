@@ -1,0 +1,60 @@
+{
+  "uuid": "%s",
+  "id": "%s",
+  "priority": 1,
+  "scenarioName": "Scenario",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "Stopped",
+  "request": {
+    "basicAuthCredentials": {
+      "password": "password",
+      "username": "username"
+    },
+    "bodyPatterns": [
+      {
+        "equalToJson": "{\"meta\": \"information\"}"
+      },
+      {
+        "contains": "information"
+      }
+    ],
+    "multipartPatterns": [
+      {
+        "matchingType": "ANY",
+        "bodyPatterns": [
+          {
+            "contains": "test"
+          }
+        ]
+      }
+    ],
+    "cookies": {
+      "session": {
+        "equalToXml": "\u003cxml\u003e"
+      }
+    },
+    "headers": {
+      "x-session": {
+        "matches": "^\\S+@\\S+$"
+      }
+    },
+    "method": "POST",
+    "queryParameters": {
+      "firstName": {
+        "equalTo": "Jhon"
+      },
+      "lastName": {
+        "doesNotMatch": "Black"
+      }
+    },
+    "urlPath": "/example"
+  },
+  "response": {
+    "body": "{\"code\": 400, \"detail\": \"detail\"}",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "status": 400,
+    "fixedDelayMilliseconds": 5000
+  }
+}
