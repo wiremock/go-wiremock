@@ -92,17 +92,17 @@ func (c *Client) Reset() error {
 func (c *Client) ClearRequests() error {
 	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/%s/requests", c.url, wiremockAdminURN), nil)
 	if err != nil {
-		return fmt.Errorf("reset request log Request error: %s", err.Error())
+		return fmt.Errorf("reset request log: Request error: %s", err.Error())
 	}
 
 	res, err := (&http.Client{}).Do(req)
 	if err != nil {
-		return fmt.Errorf("clear request log Request error: %s", err.Error())
+		return fmt.Errorf("clear request log: Request error: %s", err.Error())
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("bad response status: %d", res.StatusCode)
+		return fmt.Errorf("clear request log: bad response status: %d", res.StatusCode)
 	}
 
 	return nil
