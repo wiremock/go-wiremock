@@ -25,6 +25,7 @@ type URLMatcherInterface interface {
 type response struct {
 	body                   string
 	headers                map[string]string
+	transformers           []string
 	status                 int64
 	fixedDelayMilliseconds time.Duration
 }
@@ -101,6 +102,12 @@ func (s *StubRule) WithBasicAuth(username, password string) *StubRule {
 	return s
 }
 
+// WithTransformers adds transformers, enabling the use of templates in reply body
+func (s *StubRule) WithTransformers(transformers ...string) *StubRule {
+	s.response.transformers = transformers
+	return s
+}
+
 // AtPriority sets priority and returns *StubRule
 func (s *StubRule) AtPriority(priority int64) *StubRule {
 	s.priority = &priority
@@ -168,6 +175,7 @@ func (s *StubRule) MarshalJSON() ([]byte, error) {
 		Response                      struct {
 			Body                   string            `json:"body,omitempty"`
 			Headers                map[string]string `json:"headers,omitempty"`
+			Transformers           []string          `json:"transformers,omitempty"`
 			Status                 int64             `json:"status,omitempty"`
 			FixedDelayMilliseconds int               `json:"fixedDelayMilliseconds,omitempty"`
 		} `json:"response"`
@@ -178,6 +186,7 @@ func (s *StubRule) MarshalJSON() ([]byte, error) {
 	jsonStubRule.NewScenarioState = s.newScenarioState
 	jsonStubRule.Response.Body = s.response.body
 	jsonStubRule.Response.Headers = s.response.headers
+	jsonStubRule.Response.Transformers = s.response.transformers
 	jsonStubRule.Response.Status = s.response.status
 	jsonStubRule.Response.FixedDelayMilliseconds = int(s.response.fixedDelayMilliseconds.Milliseconds())
 	jsonStubRule.Request = s.request
