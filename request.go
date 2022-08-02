@@ -12,6 +12,7 @@ type Request struct {
 	queryParams          map[string]ParamMatcherInterface
 	cookies              map[string]ParamMatcherInterface
 	bodyPatterns         []ParamMatcher
+	multipartPatterns    []*MultipartPattern
 	basicAuthCredentials *struct {
 		username string
 		password string
@@ -41,6 +42,12 @@ func (r *Request) WithURLMatched(urlMatcher URLMatcherInterface) *Request {
 // WithBodyPattern adds body pattern to list
 func (r *Request) WithBodyPattern(matcher ParamMatcher) *Request {
 	r.bodyPatterns = append(r.bodyPatterns, matcher)
+	return r
+}
+
+// WithMultipartPattern adds multipart pattern to list
+func (r *Request) WithMultipartPattern(pattern *MultipartPattern) *Request {
+	r.multipartPatterns = append(r.multipartPatterns, pattern)
 	return r
 }
 
@@ -101,8 +108,11 @@ func (r *Request) MarshalJSON() ([]byte, error) {
 		}
 		request["bodyPatterns"] = bodyPatterns
 	}
+	if len(r.multipartPatterns) > 0 {
+		request["multipartPatterns"] = r.multipartPatterns
+	}
 	if len(r.headers) > 0 {
-		headers := make(map[string]map[ParamMatchingStrategy]string, len(r.bodyPatterns))
+		headers := make(map[string]map[ParamMatchingStrategy]string, len(r.headers))
 		for key, header := range r.headers {
 			headers[key] = map[ParamMatchingStrategy]string{
 				header.Strategy(): header.Value(),

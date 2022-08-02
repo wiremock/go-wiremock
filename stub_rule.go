@@ -81,6 +81,12 @@ func (s *StubRule) WithBodyPattern(matcher ParamMatcher) *StubRule {
 	return s
 }
 
+// WithMultipartPattern adds multipart body pattern and returns *StubRule
+func (s *StubRule) WithMultipartPattern(pattern *MultipartPattern) *StubRule {
+	s.request.WithMultipartPattern(pattern)
+	return s
+}
+
 // WillReturn sets response and returns *StubRule
 func (s *StubRule) WillReturn(body string, headers map[string]string, status int64) *StubRule {
 	s.response.body = body
