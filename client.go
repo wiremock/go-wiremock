@@ -52,7 +52,7 @@ func (c *Client) StubFor(stubRule *StubRule) error {
 func (c *Client) Clear() error {
 	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/%s", c.url, wiremockAdminMappingsURN), nil)
 	if err != nil {
-		return fmt.Errorf("build cleare Request error: %s", err.Error())
+		return fmt.Errorf("build clear Request error: %s", err.Error())
 	}
 
 	res, err := (&http.Client{}).Do(req)
@@ -83,6 +83,26 @@ func (c *Client) Reset() error {
 		}
 
 		return fmt.Errorf("bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
+	}
+
+	return nil
+}
+
+// ClearRequests resets the request log.
+func (c *Client) ClearRequests() error {
+	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/%s/requests", c.url, wiremockAdminURN), nil)
+	if err != nil {
+		return fmt.Errorf("reset request log: Request error: %s", err.Error())
+	}
+
+	res, err := (&http.Client{}).Do(req)
+	if err != nil {
+		return fmt.Errorf("clear request log: Request error: %s", err.Error())
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("clear request log: bad response status: %d", res.StatusCode)
 	}
 
 	return nil
@@ -150,6 +170,35 @@ func (c *Client) Verify(r *Request, expectedCount int64) (bool, error) {
 	}
 
 	return actualCount == expectedCount, nil
+}
+
+// UnmatchedRequests returns the number of requests that didn't match any stub.
+func (c *Client) UnmatchedRequests() (int, error) {
+	res, err := http.Get(fmt.Sprintf("%s/%s/requests/unmatched", c.url, wiremockAdminURN))
+	if err != nil {
+		return 0, fmt.Errorf("unmatched requests: %s", err.Error())
+	}
+	defer res.Body.Close()
+
+	bodyBytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return 0, fmt.Errorf("unmatched requests: read response error: %s", err.Error())
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return 0, fmt.Errorf("unmatched requests: bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
+	}
+
+	var unmatchedRequestsResponse struct {
+		Requests []interface{}
+	}
+
+	err = json.Unmarshal(bodyBytes, &unmatchedRequestsResponse)
+	if err != nil {
+		return 0, fmt.Errorf("unmatched requests: read json error: %s", err.Error())
+	}
+
+	return len(unmatchedRequestsResponse.Requests), nil
 }
 
 // DeleteStubByID deletes stub by id.

@@ -23,7 +23,7 @@ import (
 func TestSome(t *testing.T) {
     wiremockClient := wiremock.NewClient("http://0.0.0.0:8080")
     defer wiremockClient.Reset()
-    
+
     // stubbing POST http://0.0.0.0:8080/example
     wiremockClient.StubFor(wiremock.Post(wiremock.URLPathEqualTo("/example")).
             WithQueryParam("firstName", wiremock.EqualTo("Jhon")).
@@ -40,12 +40,12 @@ func TestSome(t *testing.T) {
     // scenario
     defer wiremockClient.ResetAllScenarios()
     wiremockClient.StubFor(wiremock.Get(wiremock.URLPathEqualTo("/status")).
-		WillReturn(
-			`{"status": null}`,
-			map[string]string{"Content-Type": "application/json"},
-			200,
-		).
-		InScenario("Set status").
+        WillReturn(
+            `{"status": null}`,
+            map[string]string{"Content-Type": "application/json"},
+            200,
+        ).
+        InScenario("Set status").
         WhenScenarioStateIs(wiremock.ScenarioStateStarted))
 
     wiremockClient.StubFor(wiremock.Post(wiremock.URLPathEqualTo("/state")).
@@ -54,22 +54,22 @@ func TestSome(t *testing.T) {
             WillSetStateTo("Status started"))
 
     statusStub := wiremock.Get(wiremock.URLPathEqualTo("/status")).
-		WillReturn(
-			`{"status": "started"}`,
-			map[string]string{"Content-Type": "application/json"},
-			200,
-		).
-		InScenario("Set status").
-		WhenScenarioStateIs("Status started")
+        WillReturn(
+            `{"status": "started"}`,
+            map[string]string{"Content-Type": "application/json"},
+            200,
+        ).
+        InScenario("Set status").
+        WhenScenarioStateIs("Status started")
     wiremockClient.StubFor(statusStub)
 
     //testing code...
-    
+
     verifyResult, _ := wiremockClient.Verify(statusStub.Request(), 1)
     if !verifyResult {
-		//...
+        //...
     }
-    
+
     wiremockClient.DeleteStub(statusStub)
 }
 ```
