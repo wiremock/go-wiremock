@@ -1,6 +1,7 @@
 package wiremock
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -23,7 +24,10 @@ type URLMatcherInterface interface {
 }
 
 type response struct {
-	body                   string
+	body                   *string
+	base64Body             []byte
+	bodyFileName           *string
+	jsonBody               interface{}
 	headers                map[string]string
 	status                 int64
 	fixedDelayMilliseconds time.Duration
@@ -89,7 +93,31 @@ func (s *StubRule) WithMultipartPattern(pattern *MultipartPattern) *StubRule {
 
 // WillReturn sets response and returns *StubRule
 func (s *StubRule) WillReturn(body string, headers map[string]string, status int64) *StubRule {
-	s.response.body = body
+	s.response.body = &body
+	s.response.headers = headers
+	s.response.status = status
+	return s
+}
+
+// WillReturnBinary sets response with binary body and returns *StubRule
+func (s *StubRule) WillReturnBinary(body []byte, headers map[string]string, status int64) *StubRule {
+	s.response.base64Body = body
+	s.response.headers = headers
+	s.response.status = status
+	return s
+}
+
+// WillReturnFileContent sets response with some file content and returns *StubRule
+func (s *StubRule) WillReturnFileContent(bodyFileName string, headers map[string]string, status int64) *StubRule {
+	s.response.bodyFileName = &bodyFileName
+	s.response.headers = headers
+	s.response.status = status
+	return s
+}
+
+// WillReturnJSON sets response with json body and returns *StubRule
+func (s *StubRule) WillReturnJSON(json interface{}, headers map[string]string, status int64) *StubRule {
+	s.response.jsonBody = json
 	s.response.headers = headers
 	s.response.status = status
 	return s
@@ -173,6 +201,9 @@ func (s *StubRule) MarshalJSON() ([]byte, error) {
 		Request                       *Request `json:"request"`
 		Response                      struct {
 			Body                   string            `json:"body,omitempty"`
+			Base64Body             string            `json:"base64Body,omitempty"`
+			BodyFileName           string            `json:"bodyFileName,omitempty"`
+			JSONBody               interface{}       `json:"jsonBody,omitempty"`
 			Headers                map[string]string `json:"headers,omitempty"`
 			Status                 int64             `json:"status,omitempty"`
 			FixedDelayMilliseconds int               `json:"fixedDelayMilliseconds,omitempty"`
@@ -182,7 +213,17 @@ func (s *StubRule) MarshalJSON() ([]byte, error) {
 	jsonStubRule.ScenarioName = s.scenarioName
 	jsonStubRule.RequiredScenarioScenarioState = s.requiredScenarioState
 	jsonStubRule.NewScenarioState = s.newScenarioState
-	jsonStubRule.Response.Body = s.response.body
+
+	if s.response.body != nil {
+		jsonStubRule.Response.Body = *s.response.body
+	} else if len(s.response.base64Body) > 0 {
+		jsonStubRule.Response.Base64Body = base64.StdEncoding.EncodeToString(s.response.base64Body)
+	} else if s.response.bodyFileName != nil {
+		jsonStubRule.Response.BodyFileName = *s.response.bodyFileName
+	} else if s.response.jsonBody != nil {
+		jsonStubRule.Response.JSONBody = s.response.jsonBody
+	}
+
 	jsonStubRule.Response.Headers = s.response.headers
 	jsonStubRule.Response.Status = s.response.status
 	jsonStubRule.Response.FixedDelayMilliseconds = int(s.response.fixedDelayMilliseconds.Milliseconds())

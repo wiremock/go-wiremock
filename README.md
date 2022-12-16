@@ -30,8 +30,11 @@ func TestSome(t *testing.T) {
             WithQueryParam("lastName", wiremock.NotMatching("Black")).
             WithBodyPattern(wiremock.EqualToJson(`{"meta": "information"}`)).
             WithHeader("x-session", wiremock.Matching("^\\S+fingerprint\\S+$")).
-            WillReturn(
-                `{"code": 400, "detail": "detail"}`,
+            WillReturnJSON(
+                map[string]interface{}{
+					"code": 400,
+                    "detail": "detail",
+                },
                 map[string]string{"Content-Type": "application/json"},
                 400,
             ).
@@ -40,8 +43,10 @@ func TestSome(t *testing.T) {
     // scenario
     defer wiremockClient.ResetAllScenarios()
     wiremockClient.StubFor(wiremock.Get(wiremock.URLPathEqualTo("/status")).
-		WillReturn(
-			`{"status": null}`,
+		WillReturnJSON(
+			map[string]interface{}{
+                "status": nil,
+            },
 			map[string]string{"Content-Type": "application/json"},
 			200,
 		).
@@ -54,8 +59,10 @@ func TestSome(t *testing.T) {
             WillSetStateTo("Status started"))
 
     statusStub := wiremock.Get(wiremock.URLPathEqualTo("/status")).
-		WillReturn(
-			`{"status": "started"}`,
+		WillReturnJSON(
+            map[string]interface{}{
+                "status": "started",
+            },
 			map[string]string{"Content-Type": "application/json"},
 			200,
 		).
