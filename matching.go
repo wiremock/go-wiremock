@@ -79,6 +79,7 @@ func URLMatching(url string) URLMatcher {
 type ParamMatcher struct {
 	strategy ParamMatchingStrategy
 	value    string
+	flags    map[string]bool
 }
 
 // Strategy returns ParamMatchingStrategy of ParamMatcher.
@@ -89,6 +90,11 @@ func (m ParamMatcher) Strategy() ParamMatchingStrategy {
 // Value returns value of ParamMatcher.
 func (m ParamMatcher) Value() string {
 	return m.value
+}
+
+// Flags return value of ParamMatcher.
+func (m ParamMatcher) Flags() map[string]bool {
+	return m.flags
 }
 
 // EqualTo returns ParamMatcher with ParamEqualTo matching strategy.

@@ -69,20 +69,28 @@ func (m *MultipartPattern) MarshalJSON() ([]byte, error) {
 	}
 
 	if len(m.bodyPatterns) > 0 {
-		bodyPatterns := make([]map[ParamMatchingStrategy]string, len(m.bodyPatterns))
+		bodyPatterns := make([]map[string]interface{}, len(m.bodyPatterns))
 		for i, bodyPattern := range m.bodyPatterns {
-			bodyPatterns[i] = map[ParamMatchingStrategy]string{
-				bodyPattern.Strategy(): bodyPattern.Value(),
+			bodyPatterns[i] = map[string]interface{}{
+				string(bodyPattern.Strategy()): bodyPattern.Value(),
+			}
+
+			for flag, value := range bodyPattern.flags {
+				bodyPatterns[i][flag] = value
 			}
 		}
 		multipart["bodyPatterns"] = bodyPatterns
 	}
 
 	if len(m.headers) > 0 {
-		headers := make(map[string]map[ParamMatchingStrategy]string, len(m.headers))
+		headers := make(map[string]map[string]interface{}, len(m.headers))
 		for key, header := range m.headers {
-			headers[key] = map[ParamMatchingStrategy]string{
-				header.Strategy(): header.Value(),
+			headers[key] = map[string]interface{}{
+				string(header.Strategy()): header.Value(),
+			}
+
+			for flag, value := range header.Flags() {
+				headers[key][flag] = value
 			}
 		}
 		multipart["headers"] = headers
