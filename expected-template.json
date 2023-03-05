@@ -43,11 +43,17 @@
     "cookies": {
       "session": {
         "equalToXml": "\u003cxml\u003e"
+      },
+      "absentcookie": {
+        "absent": true
       }
     },
     "headers": {
       "x-session": {
         "matches": "^\\S+@\\S+$"
+      },
+      "x-absent": {
+        "absent": true
       }
     },
     "queryParameters": {

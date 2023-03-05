@@ -34,6 +34,8 @@ func TestStubRule_ToJson(t *testing.T) {
 				WithBodyPattern(EqualToJson("{}", IgnoreExtraElements)),
 		).
 		WithBasicAuth("username", "password").
+		WithHeader("x-absent", Absent()).
+		WithCookie("absentcookie", Absent()).
 		WithHeader("x-session", Matching("^\\S+@\\S+$")).
 		WithCookie("session", EqualToXml("<xml>")).
 		WillReturn(

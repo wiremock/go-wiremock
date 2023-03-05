@@ -186,3 +186,13 @@ func NotMatching(param string) ParamMatcher {
 		value:    param,
 	}
 }
+
+func Absent() ParamMatcher {
+	return ParamMatcher{
+		strategy: ParamAbsent,
+		value:    "",
+		flags: map[string]bool{
+			string(ParamAbsent): true,
+		},
+	}
+}
