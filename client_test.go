@@ -24,13 +24,14 @@ func TestStubRule_ToJson(t *testing.T) {
 	postStubRule := Post(URLPathEqualTo("/example")).
 		WithQueryParam("firstName", EqualTo("Jhon")).
 		WithQueryParam("lastName", NotMatching("Black")).
-		WithBodyPattern(EqualToJson(`{"meta": "information"}`)).
+		WithQueryParam("nickname", EqualToIgnoreCase("jhonBlack")).
+		WithBodyPattern(EqualToJson(`{"meta": "information"}`, IgnoreArrayOrder, IgnoreExtraElements)).
 		WithBodyPattern(Contains("information")).
 		WithMultipartPattern(
 			NewMultipartPattern().
 				WithName("info").
 				WithHeader("Content-Type", Contains("charset")).
-				WithBodyPattern(EqualToJson("{}")),
+				WithBodyPattern(EqualToJson("{}", IgnoreExtraElements)),
 		).
 		WithBasicAuth("username", "password").
 		WithHeader("x-session", Matching("^\\S+@\\S+$")).

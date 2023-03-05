@@ -13,7 +13,9 @@
     },
     "bodyPatterns": [
       {
-        "equalToJson": "{\"meta\": \"information\"}"
+        "equalToJson": "{\"meta\": \"information\"}",
+        "ignoreArrayOrder" : true,
+        "ignoreExtraElements" : true
       },
       {
         "contains": "information"
@@ -32,7 +34,8 @@
         },
         "bodyPatterns": [
           {
-            "equalToJson": "{}"
+            "equalToJson": "{}",
+            "ignoreExtraElements": true
           }
         ]
       }
@@ -53,6 +56,10 @@
       },
       "lastName": {
         "doesNotMatch": "Black"
+      },
+      "nickname": {
+        "equalTo": "jhonBlack",
+        "caseInsensitive": true
       }
     },
     "urlPath": "/example"

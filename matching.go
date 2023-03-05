@@ -21,6 +21,15 @@ const (
 	URLMatchingRule     URLMatchingStrategy = "urlPattern"
 )
 
+// Type of less strict matching flags.
+const (
+	IgnoreArrayOrder    EqualFlag = "ignoreArrayOrder"
+	IgnoreExtraElements EqualFlag = "ignoreExtraElements"
+)
+
+// EqualFlag is enum of less strict matching flag.
+type EqualFlag string
+
 // URLMatchingStrategy is enum url matching type.
 type URLMatchingStrategy string
 
@@ -105,6 +114,17 @@ func EqualTo(param string) ParamMatcher {
 	}
 }
 
+// EqualToIgnoreCase returns ParamMatcher with ParamEqualToIgnoreCase matching strategy
+func EqualToIgnoreCase(param string) ParamMatcher {
+	return ParamMatcher{
+		strategy: ParamEqualTo,
+		value:    param,
+		flags: map[string]bool{
+			"caseInsensitive": true,
+		},
+	}
+}
+
 // Matching returns ParamMatcher with ParamMatches matching strategy.
 func Matching(param string) ParamMatcher {
 	return ParamMatcher{
@@ -129,11 +149,17 @@ func EqualToXml(param string) ParamMatcher {
 	}
 }
 
-// EqualToJson returns ParamMatcher with ParamEqualToJson matching strategy.
-func EqualToJson(param string) ParamMatcher {
+// EqualToJson returns ParamMatcher with ParamEquignoreArrayOrderalToJson matching strategy.
+func EqualToJson(param string, flags ...EqualFlag) ParamMatcher {
+	mflags := make(map[string]bool, len(flags))
+	for _, flag := range flags {
+		mflags[string(flag)] = true
+	}
+
 	return ParamMatcher{
 		strategy: ParamEqualToJson,
 		value:    param,
+		flags:    mflags,
 	}
 }
 
