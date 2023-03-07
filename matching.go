@@ -149,7 +149,7 @@ func EqualToXml(param string) ParamMatcher {
 	}
 }
 
-// EqualToJson returns ParamMatcher with ParamEquignoreArrayOrderalToJson matching strategy.
+// EqualToJson returns ParamMatcher with ParamEqualToJson matching strategy.
 func EqualToJson(param string, flags ...EqualFlag) ParamMatcher {
 	mflags := make(map[string]bool, len(flags))
 	for _, flag := range flags {
