@@ -3,7 +3,7 @@ package wiremock
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -49,7 +49,7 @@ func TestStubRule_ToJson(t *testing.T) {
 		WhenScenarioStateIs("Started").
 		WillSetStateTo("Stopped")
 
-	rawExpectedRequestBody, err := ioutil.ReadFile("expected-template.json")
+	rawExpectedRequestBody, err := os.ReadFile("expected-template.json")
 	if err != nil {
 		t.Fatalf("failed to read expected-template.json %v", err)
 	}
