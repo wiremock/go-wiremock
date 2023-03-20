@@ -15,6 +15,7 @@ const ScenarioStateStarted = "Started"
 type ParamMatcherInterface interface {
 	Strategy() ParamMatchingStrategy
 	Value() string
+	Flags() map[string]bool
 }
 
 // URLMatcherInterface is pair URLMatchingStrategy and string matched value
@@ -189,7 +190,7 @@ func Patch(urlMatchingPair URLMatcher) *StubRule {
 	return NewStubRule(http.MethodPatch, urlMatchingPair)
 }
 
-//MarshalJSON makes json body for http Request
+// MarshalJSON makes json body for http Request
 func (s *StubRule) MarshalJSON() ([]byte, error) {
 	jsonStubRule := struct {
 		UUID                          string   `json:"uuid,omitempty"`

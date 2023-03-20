@@ -13,7 +13,9 @@
     },
     "bodyPatterns": [
       {
-        "equalToJson": "{\"meta\": \"information\"}"
+        "equalToJson": "{\"meta\": \"information\"}",
+        "ignoreArrayOrder" : true,
+        "ignoreExtraElements" : true
       },
       {
         "contains": "information"
@@ -32,7 +34,8 @@
         },
         "bodyPatterns": [
           {
-            "equalToJson": "{}"
+            "equalToJson": "{}",
+            "ignoreExtraElements": true
           }
         ]
       }
@@ -40,11 +43,17 @@
     "cookies": {
       "session": {
         "equalToXml": "\u003cxml\u003e"
+      },
+      "absentcookie": {
+        "absent": true
       }
     },
     "headers": {
       "x-session": {
         "matches": "^\\S+@\\S+$"
+      },
+      "x-absent": {
+        "absent": true
       }
     },
     "queryParameters": {
@@ -53,6 +62,10 @@
       },
       "lastName": {
         "doesNotMatch": "Black"
+      },
+      "nickname": {
+        "equalTo": "jhonBlack",
+        "caseInsensitive": true
       }
     },
     "urlPath": "/example"

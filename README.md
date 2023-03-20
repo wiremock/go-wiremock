@@ -8,8 +8,8 @@ The simple package to stub HTTP resource using [WireMock admin](http://wiremock.
 [![GoDoc](https://godoc.org/github.com/walkerus/go-wiremock?status.svg)](http://godoc.org/github.com/walkerus/go-wiremock)
 
 ## Usage
-```
-docker run -it --rm -p 8080:8080 rodolpheche/wiremock
+```shell
+docker run -it --rm -p 8080:8080 wiremock/wiremock
 ```
 ```go
 package main

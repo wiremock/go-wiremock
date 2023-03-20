@@ -100,10 +100,14 @@ func (r *Request) MarshalJSON() ([]byte, error) {
 		string(r.urlMatcher.Strategy()): r.urlMatcher.Value(),
 	}
 	if len(r.bodyPatterns) > 0 {
-		bodyPatterns := make([]map[ParamMatchingStrategy]string, len(r.bodyPatterns))
+		bodyPatterns := make([]map[string]interface{}, len(r.bodyPatterns))
 		for i, bodyPattern := range r.bodyPatterns {
-			bodyPatterns[i] = map[ParamMatchingStrategy]string{
-				bodyPattern.Strategy(): bodyPattern.Value(),
+			bodyPatterns[i] = map[string]interface{}{
+				string(bodyPattern.Strategy()): bodyPattern.Value(),
+			}
+
+			for flag, value := range bodyPattern.flags {
+				bodyPatterns[i][flag] = value
 			}
 		}
 		request["bodyPatterns"] = bodyPatterns
@@ -112,28 +116,40 @@ func (r *Request) MarshalJSON() ([]byte, error) {
 		request["multipartPatterns"] = r.multipartPatterns
 	}
 	if len(r.headers) > 0 {
-		headers := make(map[string]map[ParamMatchingStrategy]string, len(r.headers))
+		headers := make(map[string]map[string]interface{}, len(r.headers))
 		for key, header := range r.headers {
-			headers[key] = map[ParamMatchingStrategy]string{
-				header.Strategy(): header.Value(),
+			headers[key] = map[string]interface{}{
+				string(header.Strategy()): header.Value(),
+			}
+
+			for flag, value := range header.Flags() {
+				headers[key][flag] = value
 			}
 		}
 		request["headers"] = headers
 	}
 	if len(r.cookies) > 0 {
-		cookies := make(map[string]map[ParamMatchingStrategy]string, len(r.cookies))
+		cookies := make(map[string]map[string]interface{}, len(r.cookies))
 		for key, cookie := range r.cookies {
-			cookies[key] = map[ParamMatchingStrategy]string{
-				cookie.Strategy(): cookie.Value(),
+			cookies[key] = map[string]interface{}{
+				string(cookie.Strategy()): cookie.Value(),
+			}
+
+			for flag, value := range cookie.Flags() {
+				cookies[key][flag] = value
 			}
 		}
 		request["cookies"] = cookies
 	}
 	if len(r.queryParams) > 0 {
-		params := make(map[string]map[ParamMatchingStrategy]string, len(r.queryParams))
+		params := make(map[string]map[string]interface{}, len(r.queryParams))
 		for key, param := range r.queryParams {
-			params[key] = map[ParamMatchingStrategy]string{
-				param.Strategy(): param.Value(),
+			params[key] = map[string]interface{}{
+				string(param.Strategy()): param.Value(),
+			}
+
+			for flag, value := range param.Flags() {
+				params[key][flag] = value
 			}
 		}
 		request["queryParameters"] = params
