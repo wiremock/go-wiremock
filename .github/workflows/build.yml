@@ -5,7 +5,19 @@ on:
       - main
   pull_request:
 jobs:
-  build:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.17'
+      - uses: actions/checkout@v3
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+  tests:
     name: lint
     runs-on: ubuntu-latest
     steps:
@@ -13,9 +25,5 @@ jobs:
         with:
           go-version: '1.20'
       - uses: actions/checkout@v3
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: latest
       - name: Tests
         run: go test
