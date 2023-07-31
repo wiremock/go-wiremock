@@ -43,6 +43,11 @@ func TestStubRule_ToJson(t *testing.T) {
 			map[string]string{"Content-Type": "application/json"},
 			400,
 		).
+		WithPostServeAction("webhook", Webhook().
+			WithMethod("POST").
+			WithURL("http://my-target-host/callback").
+			WithHeader("Content-Type", "application/json").
+			WithBody(`{ "result": "SUCCESS" }`)).
 		WithFixedDelayMilliseconds(time.Second * 5).
 		AtPriority(1).
 		InScenario("Scenario").

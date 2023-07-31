@@ -77,5 +77,18 @@
     },
     "status": 400,
     "fixedDelayMilliseconds": 5000
-  }
+  },
+  "postServeActions": [
+    {
+      "name": "webhook",
+      "parameters": {
+        "method": "POST",
+        "url": "http://my-target-host/callback",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{ \"result\": \"SUCCESS\" }"
+      }
+    }
+  ]
 }
