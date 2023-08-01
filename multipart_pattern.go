@@ -14,8 +14,8 @@ type MultipartMatchingType string
 
 type MultipartPattern struct {
 	matchingType MultipartMatchingType
-	headers      map[string]ParamMatcherInterface
-	bodyPatterns []ParamMatcher
+	headers      map[string]json.Marshaler
+	bodyPatterns []BasicParamMatcher
 }
 
 func NewMultipartPattern() *MultipartPattern {
@@ -26,7 +26,7 @@ func NewMultipartPattern() *MultipartPattern {
 
 func (m *MultipartPattern) WithName(name string) *MultipartPattern {
 	if m.headers == nil {
-		m.headers = map[string]ParamMatcherInterface{}
+		m.headers = map[string]json.Marshaler{}
 	}
 
 	m.headers["Content-Disposition"] = Contains(fmt.Sprintf(`name="%s"`, name))
@@ -48,14 +48,14 @@ func (m *MultipartPattern) WithAnyMatchingType() *MultipartPattern {
 	return m
 }
 
-func (m *MultipartPattern) WithBodyPattern(matcher ParamMatcher) *MultipartPattern {
+func (m *MultipartPattern) WithBodyPattern(matcher BasicParamMatcher) *MultipartPattern {
 	m.bodyPatterns = append(m.bodyPatterns, matcher)
 	return m
 }
 
-func (m *MultipartPattern) WithHeader(header string, matcher ParamMatcherInterface) *MultipartPattern {
+func (m *MultipartPattern) WithHeader(header string, matcher json.Marshaler) *MultipartPattern {
 	if m.headers == nil {
-		m.headers = map[string]ParamMatcherInterface{}
+		m.headers = map[string]json.Marshaler{}
 	}
 
 	m.headers[header] = matcher
@@ -69,31 +69,11 @@ func (m *MultipartPattern) MarshalJSON() ([]byte, error) {
 	}
 
 	if len(m.bodyPatterns) > 0 {
-		bodyPatterns := make([]map[string]interface{}, len(m.bodyPatterns))
-		for i, bodyPattern := range m.bodyPatterns {
-			bodyPatterns[i] = map[string]interface{}{
-				string(bodyPattern.Strategy()): bodyPattern.Value(),
-			}
-
-			for flag, value := range bodyPattern.flags {
-				bodyPatterns[i][flag] = value
-			}
-		}
-		multipart["bodyPatterns"] = bodyPatterns
+		multipart["bodyPatterns"] = m.bodyPatterns
 	}
 
 	if len(m.headers) > 0 {
-		headers := make(map[string]map[string]interface{}, len(m.headers))
-		for key, header := range m.headers {
-			headers[key] = map[string]interface{}{
-				string(header.Strategy()): header.Value(),
-			}
-
-			for flag, value := range header.Flags() {
-				headers[key][flag] = value
-			}
-		}
-		multipart["headers"] = headers
+		multipart["headers"] = m.headers
 	}
 
 	return json.Marshal(multipart)

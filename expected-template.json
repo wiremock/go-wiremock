@@ -7,6 +7,11 @@
   "newScenarioState": "Stopped",
   "request": {
     "method": "POST",
+    "scheme": "http",
+    "host": {
+      "equalTo": "localhost"
+    },
+    "port": 8080,
     "basicAuthCredentials": {
       "password": "password",
       "username": "username"
@@ -58,14 +63,40 @@
     },
     "queryParameters": {
       "firstName": {
-        "equalTo": "Jhon"
+        "or": [
+          {
+            "equalTo": "John"
+          },
+          {
+            "equalTo": "Jack"
+          }
+        ]
       },
       "lastName": {
         "doesNotMatch": "Black"
       },
       "nickname": {
-        "equalTo": "jhonBlack",
+        "equalTo": "johnBlack",
         "caseInsensitive": true
+      },
+      "address": {
+        "includes" : [
+          {
+            "equalTo": "1"
+          },
+          {
+            "contains": "2"
+          },
+          {
+            "doesNotContain": "3"
+          }
+        ]
+      },
+      "id": {
+        "and": [
+          {"contains": "1"},
+          {"doesNotContain": "2"}
+        ]
       }
     },
     "urlPath": "/example"

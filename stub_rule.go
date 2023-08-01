@@ -11,13 +11,6 @@ import (
 
 const ScenarioStateStarted = "Started"
 
-// ParamMatcherInterface is pair ParamMatchingStrategy and string matched value
-type ParamMatcherInterface interface {
-	Strategy() ParamMatchingStrategy
-	Value() string
-	Flags() map[string]bool
-}
-
 // URLMatcherInterface is pair URLMatchingStrategy and string matched value
 type URLMatcherInterface interface {
 	Strategy() URLMatchingStrategy
@@ -32,6 +25,10 @@ type response struct {
 	headers                map[string]string
 	status                 int64
 	fixedDelayMilliseconds time.Duration
+}
+
+type Matcher interface {
+	StringValueMatcher | MultiValueMatcher
 }
 
 // StubRule is struct of http Request body to WireMock
@@ -63,25 +60,43 @@ func (s *StubRule) Request() *Request {
 }
 
 // WithQueryParam adds query param and returns *StubRule
-func (s *StubRule) WithQueryParam(param string, matcher ParamMatcherInterface) *StubRule {
+func (s *StubRule) WithQueryParam(param string, matcher json.Marshaler) *StubRule {
 	s.request.WithQueryParam(param, matcher)
 	return s
 }
 
+// WithPort adds port and returns *StubRule
+func (s *StubRule) WithPort(port int64) *StubRule {
+	s.request.WithPort(port)
+	return s
+}
+
+// WithScheme adds scheme and returns *StubRule
+func (s *StubRule) WithScheme(scheme string) *StubRule {
+	s.request.WithScheme(scheme)
+	return s
+}
+
+// WithHost adds host and returns *StubRule
+func (s *StubRule) WithHost(host BasicParamMatcher) *StubRule {
+	s.request.WithHost(host)
+	return s
+}
+
 // WithHeader adds header to Headers and returns *StubRule
-func (s *StubRule) WithHeader(header string, matcher ParamMatcherInterface) *StubRule {
+func (s *StubRule) WithHeader(header string, matcher json.Marshaler) *StubRule {
 	s.request.WithHeader(header, matcher)
 	return s
 }
 
 // WithCookie adds cookie and returns *StubRule
-func (s *StubRule) WithCookie(cookie string, matcher ParamMatcherInterface) *StubRule {
+func (s *StubRule) WithCookie(cookie string, matcher BasicParamMatcher) *StubRule {
 	s.request.WithCookie(cookie, matcher)
 	return s
 }
 
 // WithBodyPattern adds body pattern and returns *StubRule
-func (s *StubRule) WithBodyPattern(matcher ParamMatcher) *StubRule {
+func (s *StubRule) WithBodyPattern(matcher BasicParamMatcher) *StubRule {
 	s.request.WithBodyPattern(matcher)
 	return s
 }
