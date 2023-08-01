@@ -26,7 +26,7 @@ func TestSome(t *testing.T) {
     
     // stubbing POST http://0.0.0.0:8080/example
     wiremockClient.StubFor(wiremock.Post(wiremock.URLPathEqualTo("/example")).
-            WithQueryParam("firstName", wiremock.EqualTo("Jhon")).
+            WithQueryParam("firstName", wiremock.EqualTo("John")).
             WithQueryParam("lastName", wiremock.NotMatching("Black")).
             WithBodyPattern(wiremock.EqualToJson(`{"meta": "information"}`)).
             WithHeader("x-session", wiremock.Matching("^\\S+fingerprint\\S+$")).

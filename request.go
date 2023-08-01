@@ -8,10 +8,13 @@ import (
 type Request struct {
 	urlMatcher           URLMatcherInterface
 	method               string
-	headers              map[string]ParamMatcherInterface
-	queryParams          map[string]ParamMatcherInterface
-	cookies              map[string]ParamMatcherInterface
-	bodyPatterns         []ParamMatcher
+	host                 BasicParamMatcher
+	port                 *int64
+	scheme               *string
+	headers              map[string]json.Marshaler
+	queryParams          map[string]json.Marshaler
+	cookies              map[string]BasicParamMatcher
+	bodyPatterns         []BasicParamMatcher
 	multipartPatterns    []*MultipartPattern
 	basicAuthCredentials *struct {
 		username string
@@ -27,6 +30,24 @@ func NewRequest(method string, urlMatcher URLMatcherInterface) *Request {
 	}
 }
 
+// WithPort is fluent-setter for port
+func (r *Request) WithPort(port int64) *Request {
+	r.port = &port
+	return r
+}
+
+// WithScheme is fluent-setter for scheme
+func (r *Request) WithScheme(scheme string) *Request {
+	r.scheme = &scheme
+	return r
+}
+
+// WithHost is fluent-setter for host
+func (r *Request) WithHost(host BasicParamMatcher) *Request {
+	r.host = host
+	return r
+}
+
 // WithMethod is fluent-setter for http verb
 func (r *Request) WithMethod(method string) *Request {
 	r.method = method
@@ -40,7 +61,7 @@ func (r *Request) WithURLMatched(urlMatcher URLMatcherInterface) *Request {
 }
 
 // WithBodyPattern adds body pattern to list
-func (r *Request) WithBodyPattern(matcher ParamMatcher) *Request {
+func (r *Request) WithBodyPattern(matcher BasicParamMatcher) *Request {
 	r.bodyPatterns = append(r.bodyPatterns, matcher)
 	return r
 }
@@ -64,9 +85,9 @@ func (r *Request) WithBasicAuth(username, password string) *Request {
 }
 
 // WithQueryParam add param to query param list
-func (r *Request) WithQueryParam(param string, matcher ParamMatcherInterface) *Request {
+func (r *Request) WithQueryParam(param string, matcher json.Marshaler) *Request {
 	if r.queryParams == nil {
-		r.queryParams = map[string]ParamMatcherInterface{}
+		r.queryParams = map[string]json.Marshaler{}
 	}
 
 	r.queryParams[param] = matcher
@@ -74,9 +95,9 @@ func (r *Request) WithQueryParam(param string, matcher ParamMatcherInterface) *R
 }
 
 // WithHeader add header to header list
-func (r *Request) WithHeader(header string, matcher ParamMatcherInterface) *Request {
+func (r *Request) WithHeader(header string, matcher json.Marshaler) *Request {
 	if r.headers == nil {
-		r.headers = map[string]ParamMatcherInterface{}
+		r.headers = map[string]json.Marshaler{}
 	}
 
 	r.headers[header] = matcher
@@ -84,9 +105,9 @@ func (r *Request) WithHeader(header string, matcher ParamMatcherInterface) *Requ
 }
 
 // WithCookie is fluent-setter for cookie
-func (r *Request) WithCookie(cookie string, matcher ParamMatcherInterface) *Request {
+func (r *Request) WithCookie(cookie string, matcher BasicParamMatcher) *Request {
 	if r.cookies == nil {
-		r.cookies = map[string]ParamMatcherInterface{}
+		r.cookies = map[string]BasicParamMatcher{}
 	}
 
 	r.cookies[cookie] = matcher
@@ -99,60 +120,33 @@ func (r *Request) MarshalJSON() ([]byte, error) {
 		"method":                        r.method,
 		string(r.urlMatcher.Strategy()): r.urlMatcher.Value(),
 	}
-	if len(r.bodyPatterns) > 0 {
-		bodyPatterns := make([]map[string]interface{}, len(r.bodyPatterns))
-		for i, bodyPattern := range r.bodyPatterns {
-			bodyPatterns[i] = map[string]interface{}{
-				string(bodyPattern.Strategy()): bodyPattern.Value(),
-			}
 
-			for flag, value := range bodyPattern.flags {
-				bodyPatterns[i][flag] = value
-			}
-		}
-		request["bodyPatterns"] = bodyPatterns
+	if r.scheme != nil {
+		request["scheme"] = r.scheme
+	}
+
+	if r.host != nil {
+		request["host"] = r.host
+	}
+
+	if r.port != nil {
+		request["port"] = r.port
+	}
+
+	if len(r.bodyPatterns) > 0 {
+		request["bodyPatterns"] = r.bodyPatterns
 	}
 	if len(r.multipartPatterns) > 0 {
 		request["multipartPatterns"] = r.multipartPatterns
 	}
 	if len(r.headers) > 0 {
-		headers := make(map[string]map[string]interface{}, len(r.headers))
-		for key, header := range r.headers {
-			headers[key] = map[string]interface{}{
-				string(header.Strategy()): header.Value(),
-			}
-
-			for flag, value := range header.Flags() {
-				headers[key][flag] = value
-			}
-		}
-		request["headers"] = headers
+		request["headers"] = r.headers
 	}
 	if len(r.cookies) > 0 {
-		cookies := make(map[string]map[string]interface{}, len(r.cookies))
-		for key, cookie := range r.cookies {
-			cookies[key] = map[string]interface{}{
-				string(cookie.Strategy()): cookie.Value(),
-			}
-
-			for flag, value := range cookie.Flags() {
-				cookies[key][flag] = value
-			}
-		}
-		request["cookies"] = cookies
+		request["cookies"] = r.cookies
 	}
 	if len(r.queryParams) > 0 {
-		params := make(map[string]map[string]interface{}, len(r.queryParams))
-		for key, param := range r.queryParams {
-			params[key] = map[string]interface{}{
-				string(param.Strategy()): param.Value(),
-			}
-
-			for flag, value := range param.Flags() {
-				params[key][flag] = value
-			}
-		}
-		request["queryParameters"] = params
+		request["queryParameters"] = r.queryParams
 	}
 
 	if r.basicAuthCredentials != nil {
