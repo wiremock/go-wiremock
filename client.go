@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -37,7 +37,7 @@ func (c *Client) StubFor(stubRule *StubRule) error {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusCreated {
-		bodyBytes, err := ioutil.ReadAll(res.Body)
+		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
 			return fmt.Errorf("read response error: %s", err.Error())
 		}
@@ -77,7 +77,7 @@ func (c *Client) Reset() error {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		bodyBytes, err := ioutil.ReadAll(res.Body)
+		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
 			return fmt.Errorf("read response error: %s", err.Error())
 		}
@@ -97,7 +97,7 @@ func (c *Client) ResetAllScenarios() error {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		bodyBytes, err := ioutil.ReadAll(res.Body)
+		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
 			return fmt.Errorf("read response error: %s", err.Error())
 		}
@@ -121,7 +121,7 @@ func (c *Client) GetCountRequests(r *Request) (int64, error) {
 	}
 	defer res.Body.Close()
 
-	bodyBytes, err := ioutil.ReadAll(res.Body)
+	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return 0, fmt.Errorf("get count requests: read response error: %s", err.Error())
 	}
@@ -167,7 +167,7 @@ func (c *Client) DeleteStubByID(id string) error {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		bodyBytes, err := ioutil.ReadAll(res.Body)
+		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
 			return fmt.Errorf("read response error: %s", err.Error())
 		}

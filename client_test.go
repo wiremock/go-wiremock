@@ -3,6 +3,7 @@ package wiremock
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"reflect"
 	"testing"
@@ -22,9 +23,14 @@ func TestStubRule_ToJson(t *testing.T) {
 	}
 
 	postStubRule := Post(URLPathEqualTo("/example")).
-		WithQueryParam("firstName", EqualTo("Jhon")).
+		WithHost(EqualTo("localhost")).
+		WithScheme("http").
+		WithPort(8080).
+		WithQueryParam("firstName", EqualTo("John").Or(EqualTo("Jack"))).
 		WithQueryParam("lastName", NotMatching("Black")).
-		WithQueryParam("nickname", EqualToIgnoreCase("jhonBlack")).
+		WithQueryParam("nickname", EqualToIgnoreCase("johnBlack")).
+		WithQueryParam("address", Includes(EqualTo("1"), Contains("2"), NotContains("3"))).
+		WithQueryParam("id", Contains("1").And(NotContains("2"))).
 		WithBodyPattern(EqualToJson(`{"meta": "information"}`, IgnoreArrayOrder, IgnoreExtraElements)).
 		WithBodyPattern(Contains("information")).
 		WithMultipartPattern(
@@ -38,17 +44,19 @@ func TestStubRule_ToJson(t *testing.T) {
 		WithCookie("absentcookie", Absent()).
 		WithHeader("x-session", Matching("^\\S+@\\S+$")).
 		WithCookie("session", EqualToXml("<xml>")).
-		WillReturn(
-			`{"code": 400, "detail": "detail"}`,
-			map[string]string{"Content-Type": "application/json"},
-			400,
+		WillReturnResponse(
+			NewResponse().
+				WithStatus(http.StatusBadRequest).
+				WithHeader("Content-Type", "application/json").
+				WithBody(`{"code": 400, "detail": "detail"}`).
+				WithFault(FaultConnectionResetByPeer).
+				WithFixedDelay(time.Second * 5),
 		).
 		WithPostServeAction("webhook", Webhook().
 			WithMethod("POST").
 			WithURL("http://my-target-host/callback").
 			WithHeader("Content-Type", "application/json").
 			WithBody(`{ "result": "SUCCESS" }`)).
-		WithFixedDelayMilliseconds(time.Second * 5).
 		AtPriority(1).
 		InScenario("Scenario").
 		WhenScenarioStateIs("Started").
@@ -58,15 +66,18 @@ func TestStubRule_ToJson(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to read expected-template.json %v", err)
 	}
+
 	rawResult, err := json.Marshal(postStubRule)
 	if err != nil {
 		t.Fatalf("StubRole json.Marshal error: %v", err)
 	}
+
 	var expected map[string]interface{}
 	err = json.Unmarshal([]byte(fmt.Sprintf(string(rawExpectedRequestBody), postStubRule.uuid, postStubRule.uuid)), &expected)
 	if err != nil {
 		t.Fatalf("StubRole json.Unmarshal error: %v", err)
 	}
+
 	var parsedResult map[string]interface{}
 	err = json.Unmarshal(rawResult, &parsedResult)
 	if err != nil {

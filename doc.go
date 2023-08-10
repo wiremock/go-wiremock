@@ -8,7 +8,7 @@ Some might consider it a service virtualization tool or a mock server.
 
 HTTP request:
 
-	POST /example?firstName=Jhon&lastName=Any string other than "Gray" HTTP/1.1
+	POST /example?firstName=John&lastName=Any string other than "Gray" HTTP/1.1
 	Host: 0.0.0.0:8080
 	x-session: somefingerprintsome
 	Content-Type: application/json
@@ -26,14 +26,15 @@ Stub:
 
 	client := wiremock.NewClient("http://0.0.0.0:8080")
 	client.StubFor(wiremock.Post(wiremock.URLPathEqualTo("/example")).
-		WithQueryParam("firstName", wiremock.EqualTo("Jhon")).
+		WithQueryParam("firstName", wiremock.EqualTo("John")).
 		WithQueryParam("lastName", wiremock.NotMatching("Gray")).
 		WithBodyPattern(wiremock.EqualToJson(`{"meta": "information"}`)).
 		WithHeader("x-session", wiremock.Matching("^\\S+fingerprint\\S+$")).
-		WillReturn(
-			`{"code": 400, "detail": "detail"}`,
-			map[string]string{"Content-Type": "application/json"},
-			400,
+		WillReturnResponse(
+			wiremock.NewResponse().
+				WithStatus(http.StatusBadRequest).
+				WithHeader("Content-Type", "application/json").
+				WithBody(`{"code": 400, "detail": "detail"}`),
 		).
 		AtPriority(1))
 
@@ -61,6 +62,5 @@ You can verify if a request has been made that matches the mapping.
 	client.StubFor(exampleStubRule)
 	// ...
 	client.Verify(exampleStubRule.Request(), 1)
-
 */
 package wiremock
