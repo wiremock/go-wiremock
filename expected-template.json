@@ -107,6 +107,10 @@
       "Content-Type": "application/json"
     },
     "status": 400,
-    "fixedDelayMilliseconds": 5000
+    "delayDistribution": {
+      "type": "fixed",
+      "milliseconds": 5000
+    },
+    "fault": "CONNECTION_RESET_BY_PEER"
   }
 }

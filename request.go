@@ -11,11 +11,11 @@ type Request struct {
 	host                 BasicParamMatcher
 	port                 *int64
 	scheme               *string
-	headers              map[string]json.Marshaler
-	queryParams          map[string]json.Marshaler
+	headers              map[string]MatcherInterface
+	queryParams          map[string]MatcherInterface
 	cookies              map[string]BasicParamMatcher
 	bodyPatterns         []BasicParamMatcher
-	multipartPatterns    []*MultipartPattern
+	multipartPatterns    []MultipartPatternInterface
 	basicAuthCredentials *struct {
 		username string
 		password string
@@ -85,9 +85,9 @@ func (r *Request) WithBasicAuth(username, password string) *Request {
 }
 
 // WithQueryParam add param to query param list
-func (r *Request) WithQueryParam(param string, matcher json.Marshaler) *Request {
+func (r *Request) WithQueryParam(param string, matcher MatcherInterface) *Request {
 	if r.queryParams == nil {
-		r.queryParams = map[string]json.Marshaler{}
+		r.queryParams = map[string]MatcherInterface{}
 	}
 
 	r.queryParams[param] = matcher
@@ -95,9 +95,9 @@ func (r *Request) WithQueryParam(param string, matcher json.Marshaler) *Request 
 }
 
 // WithHeader add header to header list
-func (r *Request) WithHeader(header string, matcher json.Marshaler) *Request {
+func (r *Request) WithHeader(header string, matcher MatcherInterface) *Request {
 	if r.headers == nil {
-		r.headers = map[string]json.Marshaler{}
+		r.headers = map[string]MatcherInterface{}
 	}
 
 	r.headers[header] = matcher

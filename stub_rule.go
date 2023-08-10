@@ -1,7 +1,6 @@
 package wiremock
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -11,46 +10,29 @@ import (
 
 const ScenarioStateStarted = "Started"
 
-// URLMatcherInterface is pair URLMatchingStrategy and string matched value
-type URLMatcherInterface interface {
-	Strategy() URLMatchingStrategy
-	Value() string
-}
-
-type response struct {
-	body                   *string
-	base64Body             []byte
-	bodyFileName           *string
-	jsonBody               interface{}
-	headers                map[string]string
-	status                 int64
-	fixedDelayMilliseconds time.Duration
-}
-
 type Matcher interface {
 	StringValueMatcher | MultiValueMatcher
 }
 
 // StubRule is struct of http Request body to WireMock
 type StubRule struct {
-	uuid                  string
-	request               *Request
-	response              response
-	priority              *int64
-	scenarioName          *string
-	requiredScenarioState *string
-	newScenarioState      *string
+	uuid                   string
+	request                *Request
+	response               ResponseInterface
+	fixedDelayMilliseconds *int64
+	priority               *int64
+	scenarioName           *string
+	requiredScenarioState  *string
+	newScenarioState       *string
 }
 
 // NewStubRule returns a new *StubRule.
 func NewStubRule(method string, urlMatcher URLMatcher) *StubRule {
 	uuid, _ := uuidPkg.NewRandom()
 	return &StubRule{
-		uuid:    uuid.String(),
-		request: NewRequest(method, urlMatcher),
-		response: response{
-			status: http.StatusOK,
-		},
+		uuid:     uuid.String(),
+		request:  NewRequest(method, urlMatcher),
+		response: NewResponse(),
 	}
 }
 
@@ -60,7 +42,7 @@ func (s *StubRule) Request() *Request {
 }
 
 // WithQueryParam adds query param and returns *StubRule
-func (s *StubRule) WithQueryParam(param string, matcher json.Marshaler) *StubRule {
+func (s *StubRule) WithQueryParam(param string, matcher MatcherInterface) *StubRule {
 	s.request.WithQueryParam(param, matcher)
 	return s
 }
@@ -84,7 +66,7 @@ func (s *StubRule) WithHost(host BasicParamMatcher) *StubRule {
 }
 
 // WithHeader adds header to Headers and returns *StubRule
-func (s *StubRule) WithHeader(header string, matcher json.Marshaler) *StubRule {
+func (s *StubRule) WithHeader(header string, matcher MatcherInterface) *StubRule {
 	s.request.WithHeader(header, matcher)
 	return s
 }
@@ -107,41 +89,45 @@ func (s *StubRule) WithMultipartPattern(pattern *MultipartPattern) *StubRule {
 	return s
 }
 
+// Deprecated: Use WillReturnResponse(NewResponse().WithBody(body).WithHeaders(headers).WithStatus(status)) instead
 // WillReturn sets response and returns *StubRule
 func (s *StubRule) WillReturn(body string, headers map[string]string, status int64) *StubRule {
-	s.response.body = &body
-	s.response.headers = headers
-	s.response.status = status
+	s.response = NewResponse().WithBody(body).WithStatus(status).WithHeaders(headers)
 	return s
 }
 
+// Deprecated: Use WillReturnResponse(NewResponse().WithBinaryBody(body).WithHeaders(headers).WithStatus(status)) instead
 // WillReturnBinary sets response with binary body and returns *StubRule
 func (s *StubRule) WillReturnBinary(body []byte, headers map[string]string, status int64) *StubRule {
-	s.response.base64Body = body
-	s.response.headers = headers
-	s.response.status = status
+	s.response = NewResponse().WithBinaryBody(body).WithStatus(status).WithHeaders(headers)
 	return s
 }
 
+// Deprecated: Use WillReturnResponse(NewResponse().WithBodyFile(file).WithHeaders(headers).WithStatus(status)) instead
 // WillReturnFileContent sets response with some file content and returns *StubRule
 func (s *StubRule) WillReturnFileContent(bodyFileName string, headers map[string]string, status int64) *StubRule {
-	s.response.bodyFileName = &bodyFileName
-	s.response.headers = headers
-	s.response.status = status
+	s.response = NewResponse().WithBodyFile(bodyFileName).WithStatus(status).WithHeaders(headers)
 	return s
 }
 
+// Deprecated: Use WillReturnResponse(NewResponse().WithJsonBody(json).WithHeaders(headers).WithStatus(status)) instead
 // WillReturnJSON sets response with json body and returns *StubRule
 func (s *StubRule) WillReturnJSON(json interface{}, headers map[string]string, status int64) *StubRule {
-	s.response.jsonBody = json
-	s.response.headers = headers
-	s.response.status = status
+	s.response = NewResponse().WithJSONBody(json).WithStatus(status).WithHeaders(headers)
 	return s
 }
 
-// WithFixedDelayMilliseconds sets fixed delay milliseconds for response
-func (s *StubRule) WithFixedDelayMilliseconds(time time.Duration) *StubRule {
-	s.response.fixedDelayMilliseconds = time
+// Deprecated: Use WillReturnResponse(NewResponse().WithFixedDelay(time.Second)) instead
+// WithFixedDelayMilliseconds adds delay to response and returns *StubRule
+func (s *StubRule) WithFixedDelayMilliseconds(delay time.Duration) *StubRule {
+	milliseconds := delay.Milliseconds()
+	s.fixedDelayMilliseconds = &milliseconds
+	return s
+}
+
+// WillReturnResponse sets response and returns *StubRule
+func (s *StubRule) WillReturnResponse(response ResponseInterface) *StubRule {
+	s.response = response
 	return s
 }
 
@@ -208,41 +194,25 @@ func Patch(urlMatchingPair URLMatcher) *StubRule {
 // MarshalJSON makes json body for http Request
 func (s *StubRule) MarshalJSON() ([]byte, error) {
 	jsonStubRule := struct {
-		UUID                          string   `json:"uuid,omitempty"`
-		ID                            string   `json:"id,omitempty"`
-		Priority                      *int64   `json:"priority,omitempty"`
-		ScenarioName                  *string  `json:"scenarioName,omitempty"`
-		RequiredScenarioScenarioState *string  `json:"requiredScenarioState,omitempty"`
-		NewScenarioState              *string  `json:"newScenarioState,omitempty"`
-		Request                       *Request `json:"request"`
-		Response                      struct {
-			Body                   string            `json:"body,omitempty"`
-			Base64Body             string            `json:"base64Body,omitempty"`
-			BodyFileName           string            `json:"bodyFileName,omitempty"`
-			JSONBody               interface{}       `json:"jsonBody,omitempty"`
-			Headers                map[string]string `json:"headers,omitempty"`
-			Status                 int64             `json:"status,omitempty"`
-			FixedDelayMilliseconds int               `json:"fixedDelayMilliseconds,omitempty"`
-		} `json:"response"`
+		UUID                          string                 `json:"uuid,omitempty"`
+		ID                            string                 `json:"id,omitempty"`
+		Priority                      *int64                 `json:"priority,omitempty"`
+		ScenarioName                  *string                `json:"scenarioName,omitempty"`
+		RequiredScenarioScenarioState *string                `json:"requiredScenarioState,omitempty"`
+		NewScenarioState              *string                `json:"newScenarioState,omitempty"`
+		Request                       *Request               `json:"request"`
+		Response                      map[string]interface{} `json:"response"`
 	}{}
 	jsonStubRule.Priority = s.priority
 	jsonStubRule.ScenarioName = s.scenarioName
 	jsonStubRule.RequiredScenarioScenarioState = s.requiredScenarioState
 	jsonStubRule.NewScenarioState = s.newScenarioState
+	jsonStubRule.Response = s.response.ParseResponse()
 
-	if s.response.body != nil {
-		jsonStubRule.Response.Body = *s.response.body
-	} else if len(s.response.base64Body) > 0 {
-		jsonStubRule.Response.Base64Body = base64.StdEncoding.EncodeToString(s.response.base64Body)
-	} else if s.response.bodyFileName != nil {
-		jsonStubRule.Response.BodyFileName = *s.response.bodyFileName
-	} else if s.response.jsonBody != nil {
-		jsonStubRule.Response.JSONBody = s.response.jsonBody
+	if s.fixedDelayMilliseconds != nil {
+		jsonStubRule.Response["fixedDelayMilliseconds"] = *s.fixedDelayMilliseconds
 	}
 
-	jsonStubRule.Response.Headers = s.response.headers
-	jsonStubRule.Response.Status = s.response.status
-	jsonStubRule.Response.FixedDelayMilliseconds = int(s.response.fixedDelayMilliseconds.Milliseconds())
 	jsonStubRule.Request = s.request
 	jsonStubRule.ID = s.uuid
 	jsonStubRule.UUID = s.uuid
