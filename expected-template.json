@@ -112,5 +112,18 @@
       "milliseconds": 5000
     },
     "fault": "CONNECTION_RESET_BY_PEER"
-  }
+  },
+  "postServeActions": [
+    {
+      "name": "webhook",
+      "parameters": {
+        "method": "POST",
+        "url": "http://my-target-host/callback",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{ \"result\": \"SUCCESS\" }"
+      }
+    }
+  ]
 }

@@ -14,6 +14,15 @@ type Matcher interface {
 	StringValueMatcher | MultiValueMatcher
 }
 
+type postServeAction struct {
+	extensionName string
+	parameters    PostServeActionParameters
+}
+
+type PostServeActionParameters interface {
+	ToMap() map[string]interface{}
+}
+
 // StubRule is struct of http Request body to WireMock
 type StubRule struct {
 	uuid                   string
@@ -24,6 +33,7 @@ type StubRule struct {
 	scenarioName           *string
 	requiredScenarioState  *string
 	newScenarioState       *string
+  postServeActions      []postServeAction
 }
 
 // NewStubRule returns a new *StubRule.
@@ -191,6 +201,14 @@ func Patch(urlMatchingPair URLMatcher) *StubRule {
 	return NewStubRule(http.MethodPatch, urlMatchingPair)
 }
 
+func (s *StubRule) WithPostServeAction(extensionName string, parameters PostServeActionParameters) *StubRule {
+	s.postServeActions = append(s.postServeActions, postServeAction{
+		extensionName: extensionName,
+		parameters:    parameters,
+	})
+	return s
+}
+
 // MarshalJSON makes json body for http Request
 func (s *StubRule) MarshalJSON() ([]byte, error) {
 	jsonStubRule := struct {
@@ -202,12 +220,26 @@ func (s *StubRule) MarshalJSON() ([]byte, error) {
 		NewScenarioState              *string                `json:"newScenarioState,omitempty"`
 		Request                       *Request               `json:"request"`
 		Response                      map[string]interface{} `json:"response"`
+    PostServeActions              []struct {
+			Name       string                 `json:"name"`
+			Parameters map[string]interface{} `json:"parameters"`
+		} `json:"postServeActions,omitempty"`
 	}{}
 	jsonStubRule.Priority = s.priority
 	jsonStubRule.ScenarioName = s.scenarioName
 	jsonStubRule.RequiredScenarioScenarioState = s.requiredScenarioState
 	jsonStubRule.NewScenarioState = s.newScenarioState
 	jsonStubRule.Response = s.response.ParseResponse()
+  
+  for _, postServeAction := range s.postServeActions {
+		jsonStubRule.PostServeActions = append(jsonStubRule.PostServeActions, struct {
+			Name       string                 `json:"name"`
+			Parameters map[string]interface{} `json:"parameters"`
+		}{
+			Name:       postServeAction.extensionName,
+			Parameters: postServeAction.parameters.ToMap(),
+		})
+	}
 
 	if s.fixedDelayMilliseconds != nil {
 		jsonStubRule.Response["fixedDelayMilliseconds"] = *s.fixedDelayMilliseconds
