@@ -9,12 +9,16 @@ type LogicalMatcher struct {
 	operands []BasicParamMatcher
 }
 
+// MarshalJSON returns the JSON encoding of the matcher.
 func (m LogicalMatcher) MarshalJSON() ([]byte, error) {
-	jsonMap := map[string]interface{}{
+	return json.Marshal(m.ParseMatcher())
+}
+
+// ParseMatcher returns the map representation of the structure.
+func (m LogicalMatcher) ParseMatcher() map[string]interface{} {
+	return map[string]interface{}{
 		m.operator: m.operands,
 	}
-
-	return json.Marshal(jsonMap)
 }
 
 // Or returns a logical OR of the current matcher and the given matcher.

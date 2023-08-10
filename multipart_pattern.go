@@ -12,9 +12,14 @@ const (
 
 type MultipartMatchingType string
 
+type MultipartPatternInterface interface {
+	json.Marshaler
+	ParseMultipartPattern() map[string]interface{}
+}
+
 type MultipartPattern struct {
 	matchingType MultipartMatchingType
-	headers      map[string]json.Marshaler
+	headers      map[string]MatcherInterface
 	bodyPatterns []BasicParamMatcher
 }
 
@@ -26,7 +31,7 @@ func NewMultipartPattern() *MultipartPattern {
 
 func (m *MultipartPattern) WithName(name string) *MultipartPattern {
 	if m.headers == nil {
-		m.headers = map[string]json.Marshaler{}
+		m.headers = map[string]MatcherInterface{}
 	}
 
 	m.headers["Content-Disposition"] = Contains(fmt.Sprintf(`name="%s"`, name))
@@ -53,9 +58,9 @@ func (m *MultipartPattern) WithBodyPattern(matcher BasicParamMatcher) *Multipart
 	return m
 }
 
-func (m *MultipartPattern) WithHeader(header string, matcher json.Marshaler) *MultipartPattern {
+func (m *MultipartPattern) WithHeader(header string, matcher MatcherInterface) *MultipartPattern {
 	if m.headers == nil {
-		m.headers = map[string]json.Marshaler{}
+		m.headers = map[string]MatcherInterface{}
 	}
 
 	m.headers[header] = matcher
@@ -64,6 +69,10 @@ func (m *MultipartPattern) WithHeader(header string, matcher json.Marshaler) *Mu
 
 // MarshalJSON gives valid JSON or error.
 func (m *MultipartPattern) MarshalJSON() ([]byte, error) {
+	return json.Marshal(m.ParseMultipartPattern())
+}
+
+func (m *MultipartPattern) ParseMultipartPattern() map[string]interface{} {
 	multipart := map[string]interface{}{
 		"matchingType": m.matchingType,
 	}
@@ -76,5 +85,5 @@ func (m *MultipartPattern) MarshalJSON() ([]byte, error) {
 		multipart["headers"] = m.headers
 	}
 
-	return json.Marshal(multipart)
+	return multipart
 }

@@ -1,5 +1,11 @@
 package wiremock
 
+// URLMatcherInterface is pair URLMatchingStrategy and string matched value
+type URLMatcherInterface interface {
+	Strategy() URLMatchingStrategy
+	Value() string
+}
+
 // URLMatcher is structure for defining the type of url matching.
 type URLMatcher struct {
 	strategy URLMatchingStrategy

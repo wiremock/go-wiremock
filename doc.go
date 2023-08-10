@@ -30,10 +30,11 @@ Stub:
 		WithQueryParam("lastName", wiremock.NotMatching("Gray")).
 		WithBodyPattern(wiremock.EqualToJson(`{"meta": "information"}`)).
 		WithHeader("x-session", wiremock.Matching("^\\S+fingerprint\\S+$")).
-		WillReturn(
-			`{"code": 400, "detail": "detail"}`,
-			map[string]string{"Content-Type": "application/json"},
-			400,
+		WillReturnResponse(
+			wiremock.NewResponse().
+				WithStatus(http.StatusBadRequest).
+				WithHeader("Content-Type", "application/json").
+				WithBody(`{"code": 400, "detail": "detail"}`),
 		).
 		AtPriority(1))
 

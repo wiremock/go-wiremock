@@ -9,11 +9,14 @@ type MultiValueMatcher struct {
 
 // MarshalJSON returns the JSON encoding of the matcher.
 func (m MultiValueMatcher) MarshalJSON() ([]byte, error) {
-	jsonMap := map[string]interface{}{
+	return json.Marshal(m.ParseMatcher())
+}
+
+// ParseMatcher returns the map representation of the structure.
+func (m MultiValueMatcher) ParseMatcher() map[string]interface{} {
+	return map[string]interface{}{
 		string(m.strategy): m.matchers,
 	}
-
-	return json.Marshal(jsonMap)
 }
 
 // HasExactly returns a matcher that matches when the parameter has exactly the specified values.

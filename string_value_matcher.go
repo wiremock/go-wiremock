@@ -2,8 +2,14 @@ package wiremock
 
 import "encoding/json"
 
+type MatcherInterface interface {
+	json.Marshaler
+	ParseMatcher() map[string]interface{}
+}
+
 type BasicParamMatcher interface {
 	json.Marshaler
+	ParseMatcher() map[string]interface{}
 	Or(stringMatcher BasicParamMatcher) BasicParamMatcher
 	And(stringMatcher BasicParamMatcher) BasicParamMatcher
 }
@@ -14,16 +20,23 @@ type StringValueMatcher struct {
 	flags    []string
 }
 
+// MarshalJSON returns the JSON encoding of the matcher.
 func (m StringValueMatcher) MarshalJSON() ([]byte, error) {
+	return json.Marshal(m.ParseMatcher())
+}
+
+// ParseMatcher returns the map representation of the structure.
+func (m StringValueMatcher) ParseMatcher() map[string]interface{} {
 	jsonMap := make(map[string]interface{}, 1+len(m.flags))
 	if m.strategy != "" {
 		jsonMap[string(m.strategy)] = m.value
 	}
+
 	for _, flag := range m.flags {
 		jsonMap[flag] = true
 	}
 
-	return json.Marshal(jsonMap)
+	return jsonMap
 }
 
 // Or returns a logical OR of the two matchers.

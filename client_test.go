@@ -3,6 +3,7 @@ package wiremock
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"reflect"
 	"testing"
@@ -43,12 +44,14 @@ func TestStubRule_ToJson(t *testing.T) {
 		WithCookie("absentcookie", Absent()).
 		WithHeader("x-session", Matching("^\\S+@\\S+$")).
 		WithCookie("session", EqualToXml("<xml>")).
-		WillReturn(
-			`{"code": 400, "detail": "detail"}`,
-			map[string]string{"Content-Type": "application/json"},
-			400,
+		WillReturnResponse(
+			NewResponse().
+				WithStatus(http.StatusBadRequest).
+				WithHeader("Content-Type", "application/json").
+				WithBody(`{"code": 400, "detail": "detail"}`).
+				WithFault(FaultConnectionResetByPeer).
+				WithFixedDelay(time.Second * 5),
 		).
-		WithFixedDelayMilliseconds(time.Second * 5).
 		AtPriority(1).
 		InScenario("Scenario").
 		WhenScenarioStateIs("Started").
