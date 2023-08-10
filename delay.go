@@ -1,6 +1,9 @@
 package wiremock
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"time"
+)
 
 type DelayInterface interface {
 	ParseDelay() map[string]interface{}
@@ -55,4 +58,24 @@ func (d chunkedDribbleDelay) MarshalJSON() ([]byte, error) {
 	}
 
 	return json.Marshal(jsonMap)
+}
+
+func NewLogNormalRandomDelay(median time.Duration, sigma float64) DelayInterface {
+	return logNormalRandomDelay{
+		median: median.Milliseconds(),
+		sigma:  sigma,
+	}
+}
+
+func NewFixedDelay(delay time.Duration) DelayInterface {
+	return fixedDelay{
+		milliseconds: delay.Milliseconds(),
+	}
+}
+
+func NewUniformRandomDelay(lower, upper time.Duration) DelayInterface {
+	return uniformRandomDelay{
+		lower: lower.Milliseconds(),
+		upper: upper.Milliseconds(),
+	}
 }

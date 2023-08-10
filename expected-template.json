@@ -122,7 +122,11 @@
         "headers": {
           "Content-Type": "application/json"
         },
-        "body": "{ \"result\": \"SUCCESS\" }"
+        "body": "{ \"result\": \"SUCCESS\" }",
+        "delay": {
+          "type": "fixed",
+          "milliseconds": 1000
+        }
       }
     }
   ]
