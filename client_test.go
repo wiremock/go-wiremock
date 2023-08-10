@@ -50,13 +50,14 @@ func TestStubRule_ToJson(t *testing.T) {
 				WithHeader("Content-Type", "application/json").
 				WithBody(`{"code": 400, "detail": "detail"}`).
 				WithFault(FaultConnectionResetByPeer).
-				WithFixedDelay(time.Second * 5),
+				WithFixedDelay(time.Second*5),
 		).
-		WithPostServeAction("webhook", Webhook().
+		WithPostServeAction("webhook", NewWebhook().
 			WithMethod("POST").
 			WithURL("http://my-target-host/callback").
 			WithHeader("Content-Type", "application/json").
-			WithBody(`{ "result": "SUCCESS" }`)).
+			WithBody(`{ "result": "SUCCESS" }`).
+			WithFixedDelay(time.Second)).
 		AtPriority(1).
 		InScenario("Scenario").
 		WhenScenarioStateIs("Started").

@@ -37,31 +37,26 @@ func NewResponse() Response {
 }
 
 // WithLogNormalRandomDelay sets log normal random delay for response
-func (r Response) WithLogNormalRandomDelay(mediana time.Duration, sigma float64) Response {
-	r.delayDistribution = logNormalRandomDelay{
-		median: mediana.Milliseconds(),
-		sigma:  sigma,
-	}
-
+func (r Response) WithLogNormalRandomDelay(median time.Duration, sigma float64) Response {
+	r.delayDistribution = NewLogNormalRandomDelay(median, sigma)
 	return r
 }
 
 // WithUniformRandomDelay sets uniform random delay for response
 func (r Response) WithUniformRandomDelay(lower, upper time.Duration) Response {
-	r.delayDistribution = uniformRandomDelay{
-		lower: lower.Milliseconds(),
-		upper: upper.Milliseconds(),
-	}
-
+	r.delayDistribution = NewUniformRandomDelay(lower, upper)
 	return r
 }
 
 // WithFixedDelay sets fixed delay milliseconds for response
-func (r Response) WithFixedDelay(time time.Duration) Response {
-	r.delayDistribution = fixedDelay{
-		milliseconds: time.Milliseconds(),
-	}
+func (r Response) WithFixedDelay(delay time.Duration) Response {
+	r.delayDistribution = NewFixedDelay(delay)
+	return r
+}
 
+// WithDelay sets delay for response
+func (r Response) WithDelay(delay DelayInterface) Response {
+	r.delayDistribution = delay
 	return r
 }
 
