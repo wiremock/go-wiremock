@@ -1,13 +1,13 @@
 # go-wiremock
 
-[![Actions Status](https://github.com/walkerus/go-wiremock/workflows/build/badge.svg)](https://github.com/walkerus/go-wiremock/actions?query=workflow%3Abuild)
-[![Go Report Card](https://goreportcard.com/badge/github.com/walkerus/go-wiremock)](https://goreportcard.com/report/github.com/walkerus/go-wiremock)
+[![Actions Status](https://github.com/wiremock/go-wiremock/workflows/build/badge.svg)](https://github.com/wiremock/go-wiremock/actions?query=workflow%3Abuild)
+[![Go Report Card](https://goreportcard.com/badge/github.com/wiremock/go-wiremock)](https://goreportcard.com/report/github.com/wiremock/go-wiremock)
 
 The simple package to stub HTTP resource using [WireMock admin](http://wiremock.org/docs/api/)
 
 ## Documentation
 
-[![GoDoc](https://godoc.org/github.com/walkerus/go-wiremock?status.svg)](http://godoc.org/github.com/walkerus/go-wiremock)
+[![GoDoc](https://godoc.org/github.com/wiremock/go-wiremock?status.svg)](http://godoc.org/github.com/wiremock/go-wiremock)
 
 ## Usage
 
@@ -22,7 +22,7 @@ import (
     "net/http"
     "testing"
 
-    "github.com/walkerus/go-wiremock"
+    "github.com/wiremock/go-wiremock"
 )
 
 func TestSome(t *testing.T) {
