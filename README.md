@@ -2,7 +2,9 @@
 
 ## 📢 Important Notice:
 This repository is a fork maintained for backward compatibility purposes.
-The primary development and latest updates now take place in [the main repository](https://github.com/wiremock/go-wiremock) under [the wiremock organization](https://github.com/wiremock). We highly recommend referring to the new repository for the most recent version and to submit issues or pull requests.
+The primary development and latest updates now take place in [the main repository](https://github.com/wiremock/go-wiremock)
+under [the wiremock organization](https://github.com/wiremock).
+We highly recommend referring to the new repository for the most recent version and to submit issues or pull requests.
 
 [![Actions Status](https://github.com/walkerus/go-wiremock/workflows/build/badge.svg)](https://github.com/walkerus/go-wiremock/actions?query=workflow%3Abuild)
 [![Go Report Card](https://goreportcard.com/badge/github.com/walkerus/go-wiremock)](https://goreportcard.com/report/github.com/walkerus/go-wiremock)
