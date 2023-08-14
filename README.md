@@ -6,8 +6,12 @@
 The simple package to stub HTTP resource using [WireMock admin](http://wiremock.org/docs/api/)
 
 ## Documentation
+### NPM Documentation
 
 [![GoDoc](https://godoc.org/github.com/wiremock/go-wiremock?status.svg)](http://godoc.org/github.com/wiremock/go-wiremock)
+
+### Wiremock Solutions for GoLang
+[![Golang Wiremock Solutions](https://wiremock.org/images/logos/wiremock/logo_square.svg)]( https://wiremock.org/docs/solutions/golang/)
 
 ## Usage
 
