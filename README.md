@@ -14,6 +14,8 @@ The project connects to the instance and allows
 setting up stubs and response templating,
 or using administrative API to extract observability data.
 
+Learn more: [Golang & WireMock Solutions page]( https://wiremock.org/docs/solutions/golang/)
+
 ## Documentation
 
 [![GoDoc](https://godoc.org/github.com/wiremock/go-wiremock?status.svg)](http://godoc.org/github.com/wiremock/go-wiremock)
@@ -120,3 +122,8 @@ func TestSome(t *testing.T) {
 ## License
 
 [MIT License](./LICENSE)
+
+## See also
+
+- [Golang & WireMock Solutions page]( https://wiremock.org/docs/solutions/golang/)
+- [WireMock module for Testcontainers Go](https://wiremock.org/docs/solutions/testcontainers/)
