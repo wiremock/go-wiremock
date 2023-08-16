@@ -2,6 +2,7 @@
 
 [![GoDoc](https://godoc.org/github.com/wiremock/go-wiremock?status.svg)](http://godoc.org/github.com/wiremock/go-wiremock)
 [![Actions Status](https://github.com/wiremock/go-wiremock/workflows/build/badge.svg)](https://github.com/wiremock/go-wiremock/actions?query=workflow%3Abuild)
+[![Slack](https://img.shields.io/badge/slack.wiremock.org-%23wiremock—go-brightgreen?style=flat&logo=slack)](https://slack.wiremock.org/)
 [![Go Report Card](https://goreportcard.com/badge/github.com/wiremock/go-wiremock)](https://goreportcard.com/report/github.com/wiremock/go-wiremock)
 
 <a href="https://go.wiremock.org" target="_blank">
