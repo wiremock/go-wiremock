@@ -9,6 +9,7 @@ import (
 )
 
 const ScenarioStateStarted = "Started"
+const authorizationHeader = "Authorization"
 
 // StubRule is struct of http Request body to WireMock
 type StubRule struct {
@@ -83,6 +84,30 @@ func (s *StubRule) WithBodyPattern(matcher BasicParamMatcher) *StubRule {
 // WithMultipartPattern adds multipart body pattern and returns *StubRule
 func (s *StubRule) WithMultipartPattern(pattern *MultipartPattern) *StubRule {
 	s.request.WithMultipartPattern(pattern)
+	return s
+}
+
+// WithAuthToken adds Authorization header with Token auth method *StubRule
+func (s *StubRule) WithAuthToken(tokenMatcher BasicParamMatcher) *StubRule {
+	methodPrefix := "Token "
+	m := addAuthMethodToMatcher(tokenMatcher, methodPrefix)
+	s.WithHeader(authorizationHeader, HasExactly(StartsWith(methodPrefix), m))
+	return s
+}
+
+// WithBearerToken adds Authorization header with Bearer auth method *StubRule
+func (s *StubRule) WithBearerToken(tokenMatcher BasicParamMatcher) *StubRule {
+	methodPrefix := "Bearer "
+	m := addAuthMethodToMatcher(tokenMatcher, methodPrefix)
+	s.WithHeader(authorizationHeader, StartsWith(methodPrefix).And(m))
+	return s
+}
+
+// WithDigestAuth adds Authorization header with Digest auth method *StubRule
+func (s *StubRule) WithDigestAuth(matcher BasicParamMatcher) *StubRule {
+	methodPrefix := "Digest "
+	m := addAuthMethodToMatcher(matcher, methodPrefix)
+	s.WithHeader(authorizationHeader, HasExactly(StartsWith(methodPrefix), m))
 	return s
 }
 
@@ -223,4 +248,18 @@ func (s *StubRule) MarshalJSON() ([]byte, error) {
 	jsonStubRule.UUID = s.uuid
 
 	return json.Marshal(jsonStubRule)
+}
+
+func addAuthMethodToMatcher(matcher BasicParamMatcher, methodPrefix string) BasicParamMatcher {
+	switch m := matcher.(type) {
+	case StringValueMatcher:
+		return m.addPrefixToMatcher(methodPrefix)
+	case LogicalMatcher:
+		for i, operand := range m.operands {
+			m.operands[i] = addAuthMethodToMatcher(operand, methodPrefix)
+		}
+		return m
+	default:
+		return matcher
+	}
 }

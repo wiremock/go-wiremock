@@ -1,6 +1,10 @@
 package wiremock
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+	"regexp"
+)
 
 type MatcherInterface interface {
 	json.Marshaler
@@ -47,6 +51,21 @@ func (m StringValueMatcher) Or(matcher BasicParamMatcher) BasicParamMatcher {
 // And returns a logical AND of the two matchers.
 func (m StringValueMatcher) And(matcher BasicParamMatcher) BasicParamMatcher {
 	return And(m, matcher)
+}
+
+// addPrefixToMatcher adds prefix to matcher.
+// In case of "contains", "absent", "doesNotContain" prefix is not added as it doesn't affect the match result
+func (m StringValueMatcher) addPrefixToMatcher(prefix string) BasicParamMatcher {
+	switch m.strategy {
+	case ParamEqualTo, ParamEqualToJson, ParamEqualToXml, ParamMatchesJsonPath, ParamMatchesXPath:
+		m.value = prefix + m.value
+	case ParamMatches, ParamDoesNotMatch:
+		if regexContainsStartAnchor(m.value) {
+			m.value = m.value[1:]
+		}
+		m.value = fmt.Sprintf("^%s", prefix) + m.value
+	}
+	return m
 }
 
 // NewStringValueMatcher creates a new StringValueMatcher.
@@ -118,4 +137,15 @@ func Contains(param string) BasicParamMatcher {
 // NotContains returns a matcher that matches when the parameter does not contain the specified value.
 func NotContains(param string) BasicParamMatcher {
 	return NewStringValueMatcher(ParamDoesNotContains, param)
+}
+
+// StartsWith returns a matcher that matches when the parameter starts with the specified prefix.
+// Matches also when prefix alone is the whole expression
+func StartsWith(prefix string) BasicParamMatcher {
+	regex := fmt.Sprintf(`^%s\s*\S*`, regexp.QuoteMeta(prefix))
+	return NewStringValueMatcher(ParamMatches, regex)
+}
+
+func regexContainsStartAnchor(regex string) bool {
+	return len(regex) > 0 && regex[0] == '^'
 }

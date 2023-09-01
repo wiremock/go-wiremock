@@ -1,0 +1,11 @@
+{
+  "uuid": "%s",
+  "id": "%s",
+  "request": {
+    "method": "PATCH",
+    "urlPattern": "/example"
+  },
+  "response": {
+    "status": 200
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "uuid": "%s",
+  "id": "%s",
+  "request": {
+    "headers": {
+      "Authorization": {
+        "and": [
+          {
+            "matches": "^Bearer \\s*\\S*"
+          },
+          {
+            "matches": "^Bearer token\\s*\\S*"
+          }
+        ]
+      }
+    },
+    "host": {
+      "equalTo": "localhost"
+    },
+    "method": "POST",
+    "port": 8080,
+    "scheme": "http",
+    "urlPath": "/example"
+  },
+  "response": {
+    "status": 200
+  }
+}

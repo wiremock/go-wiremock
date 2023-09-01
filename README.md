@@ -66,6 +66,7 @@ func TestSome(t *testing.T) {
         WithQueryParam("lastName", wiremock.NotMatching("Black")).
         WithBodyPattern(wiremock.EqualToJson(`{"meta": "information"}`)).
         WithHeader("x-session", wiremock.Matching("^\\S+fingerprint\\S+$")).
+        WithBearerToken(wiremock.StartsWith("token")).
         WillReturnResponse(
             wiremock.NewResponse().
                 WithJSONBody(map[string]interface{}{
