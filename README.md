@@ -121,6 +121,34 @@ func TestSome(t *testing.T) {
 }
 ```
 
+## Support for Authentication Schemes
+
+The library provides support for common authentication schemes, i.e.: Basic Authentication, API Token Authentication, Bearer Authentication, Digest Access Authentication.
+All of them are equivalent to manually specifying the "Authorization" header value with the appropriate prefix.
+E.g. `WithBearerToken(wiremock.EqualTo("token123")).` works the same as `WithHeader("Authorization", wiremock.EqualTo("Bearer token123")).`.
+
+### Example of usage
+
+```go
+
+basicAuthStub := wiremock.Get(wiremock.URLPathEqualTo("/basic")).
+    WithBasicAuth("username", "password"). // same as: WithHeader("Authorization", wiremock.EqualTo("Basic dXNlcm5hbWU6cGFzc3dvcmQ=")).
+    WillReturnResponse(wiremock.NewResponse().WithStatus(http.StatusOK))
+
+bearerTokenStub := wiremock.Get(wiremock.URLPathEqualTo("/bearer")).
+    WithBearerToken(wiremock.Matching("^\\S+abc\\S+$")). // same as: WithHeader("Authorization", wiremock.Matching("^Bearer \\S+abc\\S+$")).
+    WillReturnResponse(wiremock.NewResponse().WithStatus(http.StatusOK))
+
+apiTokenStub := wiremock.Get(wiremock.URLPathEqualTo("/token")).
+    WithAuthToken(wiremock.StartsWith("myToken123")). // same as: WithHeader("Authorization", wiremock.StartsWith("Token myToken123")).
+    WillReturnResponse(wiremock.NewResponse().WithStatus(http.StatusOK))
+
+digestAuthStub := wiremock.Get(wiremock.URLPathEqualTo("/digest")).
+    WithDigestAuth(wiremock.Contains("realm")). // same as: WithHeader("Authorization", wiremock.StartsWith("Digest ").And(Contains("realm"))).
+    WillReturnResponse(wiremock.NewResponse().WithStatus(http.StatusOK))
+
+```
+
 ## License
 
 [MIT License](./LICENSE)
