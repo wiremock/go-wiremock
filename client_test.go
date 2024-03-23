@@ -37,6 +37,8 @@ func TestStubRule_ToJson(t *testing.T) {
 				WithQueryParam("id", Contains("1").And(NotContains("2"))).
 				WithBodyPattern(EqualToJson(`{"meta": "information"}`, IgnoreArrayOrder, IgnoreExtraElements)).
 				WithBodyPattern(Contains("information")).
+				WithFormParameter("form1", EqualTo("value1")).
+				WithFormParameter("form2", Matching("value2")).
 				WithMultipartPattern(
 					NewMultipartPattern().
 						WithName("info").
