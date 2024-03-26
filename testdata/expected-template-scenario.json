@@ -26,6 +26,14 @@
         "contains": "information"
       }
     ],
+    "formParameters": {
+      "form1": {
+        "equalTo": "value1"
+      },
+      "form2": {
+        "matches": "value2"
+      }
+    },
     "multipartPatterns": [
       {
         "matchingType": "ANY",

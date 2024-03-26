@@ -15,6 +15,7 @@ type Request struct {
 	queryParams          map[string]MatcherInterface
 	cookies              map[string]BasicParamMatcher
 	bodyPatterns         []BasicParamMatcher
+	formParameters       map[string]BasicParamMatcher
 	multipartPatterns    []MultipartPatternInterface
 	basicAuthCredentials *struct {
 		username string
@@ -63,6 +64,15 @@ func (r *Request) WithURLMatched(urlMatcher URLMatcherInterface) *Request {
 // WithBodyPattern adds body pattern to list
 func (r *Request) WithBodyPattern(matcher BasicParamMatcher) *Request {
 	r.bodyPatterns = append(r.bodyPatterns, matcher)
+	return r
+}
+
+// WithFormParameter adds form parameter to list
+func (r *Request) WithFormParameter(name string, matcher BasicParamMatcher) *Request {
+	if r.formParameters == nil {
+		r.formParameters = make(map[string]BasicParamMatcher, 1)
+	}
+	r.formParameters[name] = matcher
 	return r
 }
 
@@ -135,6 +145,9 @@ func (r *Request) MarshalJSON() ([]byte, error) {
 
 	if len(r.bodyPatterns) > 0 {
 		request["bodyPatterns"] = r.bodyPatterns
+	}
+	if len(r.formParameters) > 0 {
+		request["formParameters"] = r.formParameters
 	}
 	if len(r.multipartPatterns) > 0 {
 		request["multipartPatterns"] = r.multipartPatterns

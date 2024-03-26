@@ -81,6 +81,12 @@ func (s *StubRule) WithBodyPattern(matcher BasicParamMatcher) *StubRule {
 	return s
 }
 
+// WithFormParameter adds form parameter and returns *StubRule
+func (s *StubRule) WithFormParameter(param string, matcher BasicParamMatcher) *StubRule {
+	s.request.WithFormParameter(param, matcher)
+	return s
+}
+
 // WithMultipartPattern adds multipart body pattern and returns *StubRule
 func (s *StubRule) WithMultipartPattern(pattern *MultipartPattern) *StubRule {
 	s.request.WithMultipartPattern(pattern)
