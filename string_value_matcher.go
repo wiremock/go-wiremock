@@ -107,6 +107,20 @@ func EqualToJson(param string, equalJsonFlags ...EqualFlag) BasicParamMatcher {
 	return NewStringValueMatcher(ParamEqualToJson, param, flags...)
 }
 
+// MustEqualToJson returns a matcher that matches when the parameter is equal to the specified JSON.
+// This method panics if param cannot be marshaled to JSON.
+func MustEqualToJson(param any, equalJsonFlags ...EqualFlag) BasicParamMatcher {
+	if str, ok := param.(string); ok {
+		return EqualToJson(str, equalJsonFlags...)
+	}
+
+	if jsonParam, err := json.Marshal(param); err != nil {
+		panic(fmt.Sprintf("Unable to marshal parameter to JSON: %v", err))
+	} else {
+		return EqualToJson(string(jsonParam), equalJsonFlags...)
+	}
+}
+
 // MatchingXPath returns a matcher that matches when the parameter matches the specified XPath.
 func MatchingXPath(param string) BasicParamMatcher {
 	return NewStringValueMatcher(ParamMatchesXPath, param)
