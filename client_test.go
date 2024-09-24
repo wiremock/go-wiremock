@@ -71,6 +71,12 @@ func TestStubRule_ToJson(t *testing.T) {
 			ExpectedFileName: "expected-template-scenario.json",
 		},
 		{
+			Name: "MustEqualToJson",
+			StubRule: NewStubRule("PATCH", URLMatching("/example")).
+				WithBodyPattern(MustEqualToJson(map[string]interface{}{"meta": "information"}, IgnoreArrayOrder, IgnoreExtraElements)),
+			ExpectedFileName: "must-equal-to-json.json",
+		},
+		{
 			Name: "StubRuleWithBearerToken_StartsWithMatcher",
 			StubRule: Post(URLPathEqualTo("/example")).
 				WithHost(EqualTo("localhost")).

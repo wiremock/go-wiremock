@@ -1,0 +1,18 @@
+{
+  "uuid": "%s",
+  "id": "%s",
+  "request": {
+    "method": "PATCH",
+    "urlPattern": "/example",
+    "bodyPatterns": [
+      {
+        "equalToJson": "{\"meta\":\"information\"}",
+        "ignoreArrayOrder" : true,
+        "ignoreExtraElements" : true
+      }
+    ]
+  },
+  "response": {
+    "status": 200
+  }
+}
