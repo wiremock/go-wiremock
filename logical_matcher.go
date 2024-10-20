@@ -16,6 +16,12 @@ func (m LogicalMatcher) MarshalJSON() ([]byte, error) {
 
 // ParseMatcher returns the map representation of the structure.
 func (m LogicalMatcher) ParseMatcher() map[string]interface{} {
+	if m.operator == "not" {
+		return map[string]interface{}{
+			m.operator: m.operands[0],
+		}
+	}
+
 	return map[string]interface{}{
 		m.operator: m.operands,
 	}
@@ -54,5 +60,13 @@ func And(matchers ...BasicParamMatcher) LogicalMatcher {
 	return LogicalMatcher{
 		operator: "and",
 		operands: matchers,
+	}
+}
+
+// Not returns a logical NOT of the given matcher. Required wiremock version >= 3.0.0
+func Not(matcher BasicParamMatcher) LogicalMatcher {
+	return LogicalMatcher{
+		operator: "not",
+		operands: []BasicParamMatcher{matcher},
 	}
 }

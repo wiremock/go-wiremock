@@ -83,10 +83,7 @@ func TestStubRule_ToJson(t *testing.T) {
 				WithScheme("http").
 				WithPort(8080).
 				WithBearerToken(StartsWith("token")).
-				WillReturnResponse(
-					NewResponse().
-						WithStatus(http.StatusOK),
-				),
+				WillReturnResponse(OK()),
 			ExpectedFileName: "expected-template-bearer-auth-startsWith.json",
 		},
 		{
@@ -96,10 +93,7 @@ func TestStubRule_ToJson(t *testing.T) {
 				WithScheme("http").
 				WithPort(8080).
 				WithBearerToken(EqualTo("token")).
-				WillReturnResponse(
-					NewResponse().
-						WithStatus(http.StatusOK),
-				),
+				WillReturnResponse(OK()),
 			ExpectedFileName: "expected-template-bearer-auth-equalTo.json",
 		},
 		{
@@ -109,10 +103,7 @@ func TestStubRule_ToJson(t *testing.T) {
 				WithScheme("http").
 				WithPort(8080).
 				WithBearerToken(Contains("token")).
-				WillReturnResponse(
-					NewResponse().
-						WithStatus(http.StatusOK),
-				),
+				WillReturnResponse(OK()),
 			ExpectedFileName: "expected-template-bearer-auth-contains.json",
 		},
 		{
@@ -122,11 +113,15 @@ func TestStubRule_ToJson(t *testing.T) {
 				WithScheme("http").
 				WithPort(8080).
 				WithBearerToken(EqualTo("token123").And(StartsWith("token"))).
-				WillReturnResponse(
-					NewResponse().
-						WithStatus(http.StatusOK),
-				),
+				WillReturnResponse(OK()),
 			ExpectedFileName: "expected-template-bearer-auth-logicalMatcher.json",
+		},
+		{
+			Name: "NotLogicalMatcher",
+			StubRule: Post(URLPathEqualTo("/example")).
+				WithQueryParam("firstName", Not(EqualTo("John").Or(EqualTo("Jack")))).
+				WillReturnResponse(OK()),
+			ExpectedFileName: "not-logical-expression.json",
 		},
 	}
 

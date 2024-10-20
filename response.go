@@ -36,6 +36,10 @@ func NewResponse() Response {
 	}
 }
 
+func OK() Response {
+	return NewResponse().WithStatus(http.StatusOK)
+}
+
 // WithLogNormalRandomDelay sets log normal random delay for response
 func (r Response) WithLogNormalRandomDelay(median time.Duration, sigma float64) Response {
 	r.delayDistribution = NewLogNormalRandomDelay(median, sigma)
