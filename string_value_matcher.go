@@ -160,6 +160,28 @@ func StartsWith(prefix string) BasicParamMatcher {
 	return NewStringValueMatcher(ParamMatches, regex)
 }
 
+type JSONSchemaMatcher struct {
+	StringValueMatcher
+	schemaVersion string
+}
+
+// MatchesJsonSchema returns a matcher that matches when the parameter matches the specified JSON schema.
+// Required wiremock version >= 3.0.0
+func MatchesJsonSchema(schema string, schemaVersion string) BasicParamMatcher {
+	return JSONSchemaMatcher{
+		StringValueMatcher: NewStringValueMatcher(ParamMatchesJsonSchema, schema),
+		schemaVersion:      schemaVersion,
+	}
+}
+
+// MarshalJSON returns the JSON encoding of the matcher.
+func (m JSONSchemaMatcher) MarshalJSON() ([]byte, error) {
+	return json.Marshal(map[string]string{
+		string(m.strategy): m.value,
+		"schemaVersion":    m.schemaVersion,
+	})
+}
+
 func regexContainsStartAnchor(regex string) bool {
 	return len(regex) > 0 && regex[0] == '^'
 }

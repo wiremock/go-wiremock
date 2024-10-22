@@ -123,6 +123,29 @@ func TestStubRule_ToJson(t *testing.T) {
 				WillReturnResponse(OK()),
 			ExpectedFileName: "not-logical-expression.json",
 		},
+		{
+			Name: "JsonSchemaMatcher",
+			StubRule: Post(URLPathEqualTo("/example")).
+				WithQueryParam("firstName", MatchesJsonSchema(
+					`{
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "tag": {
+      "type": "string"
+    }
+  }
+}`,
+					"V202012",
+				)).
+				WillReturnResponse(OK()),
+			ExpectedFileName: "matches-Json-schema.json",
+		},
 	}
 
 	for _, tc := range testCases {
