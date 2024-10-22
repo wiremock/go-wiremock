@@ -1,0 +1,25 @@
+{
+  "uuid": "%s",
+  "id": "%s",
+  "request": {
+    "method": "POST",
+    "urlPath": "/example",
+    "queryParameters": {
+      "firstName": {
+        "not": {
+          "or": [
+            {
+              "equalTo": "John"
+            },
+            {
+              "equalTo": "Jack"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "response": {
+    "status": 200
+  }
+}

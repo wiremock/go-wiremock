@@ -1,0 +1,19 @@
+{
+  "uuid": "%s",
+  "id": "%s",
+  "request" : {
+    "urlPathTemplate" : "/contacts/{contactId}/addresses/{addressId}",
+    "method" : "GET",
+    "pathParameters" : {
+      "contactId" : {
+        "equalTo" : "12345"
+      },
+      "addressId" : {
+        "equalTo" : "99876"
+      }
+    }
+  },
+  "response" : {
+    "status" : 200
+  }
+}

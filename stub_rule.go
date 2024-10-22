@@ -45,6 +45,12 @@ func (s *StubRule) WithQueryParam(param string, matcher MatcherInterface) *StubR
 	return s
 }
 
+// WithPathParam adds path param and returns *StubRule
+func (s *StubRule) WithPathParam(param string, matcher MatcherInterface) *StubRule {
+	s.request.WithPathParam(param, matcher)
+	return s
+}
+
 // WithPort adds port and returns *StubRule
 func (s *StubRule) WithPort(port int64) *StubRule {
 	s.request.WithPort(port)
