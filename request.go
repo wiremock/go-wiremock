@@ -13,9 +13,10 @@ type Request struct {
 	scheme               *string
 	headers              map[string]MatcherInterface
 	queryParams          map[string]MatcherInterface
+	pathParams           map[string]MatcherInterface
 	cookies              map[string]BasicParamMatcher
-	bodyPatterns         []BasicParamMatcher
 	formParameters       map[string]BasicParamMatcher
+	bodyPatterns         []BasicParamMatcher
 	multipartPatterns    []MultipartPatternInterface
 	basicAuthCredentials *struct {
 		username string
@@ -104,6 +105,16 @@ func (r *Request) WithQueryParam(param string, matcher MatcherInterface) *Reques
 	return r
 }
 
+// WithPathParam add param to path param list
+func (r *Request) WithPathParam(param string, matcher MatcherInterface) *Request {
+	if r.pathParams == nil {
+		r.pathParams = map[string]MatcherInterface{}
+	}
+
+	r.pathParams[param] = matcher
+	return r
+}
+
 // WithHeader add header to header list
 func (r *Request) WithHeader(header string, matcher MatcherInterface) *Request {
 	if r.headers == nil {
@@ -160,6 +171,9 @@ func (r *Request) MarshalJSON() ([]byte, error) {
 	}
 	if len(r.queryParams) > 0 {
 		request["queryParameters"] = r.queryParams
+	}
+	if len(r.pathParams) > 0 {
+		request["pathParameters"] = r.pathParams
 	}
 
 	if r.basicAuthCredentials != nil {

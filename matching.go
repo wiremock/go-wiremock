@@ -21,6 +21,7 @@ const (
 	URLPathEqualToRule  URLMatchingStrategy = "urlPath"
 	URLPathMatchingRule URLMatchingStrategy = "urlPathPattern"
 	URLMatchingRule     URLMatchingStrategy = "urlPattern"
+	URLPathTemplateRule URLMatchingStrategy = "urlPathTemplate"
 )
 
 // Type of less strict matching flags.

@@ -146,6 +146,14 @@ func TestStubRule_ToJson(t *testing.T) {
 				WillReturnResponse(OK()),
 			ExpectedFileName: "matches-Json-schema.json",
 		},
+		{
+			Name: "URLPathTemplateMatcher",
+			StubRule: Get(URLPathTemplate("/contacts/{contactId}/addresses/{addressId}")).
+				WithPathParam("contactId", EqualTo("12345")).
+				WithPathParam("addressId", EqualTo("99876")).
+				WillReturnResponse(OK()),
+			ExpectedFileName: "url-path-templating.json",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -160,7 +168,7 @@ func TestStubRule_ToJson(t *testing.T) {
 			var expected map[string]interface{}
 			err = json.Unmarshal([]byte(fmt.Sprintf(string(rawExpectedRequestBody), stubRule.uuid, stubRule.uuid)), &expected)
 			if err != nil {
-				t.Fatalf("StubRole json.Unmarshal error: %v", err)
+				t.Fatalf("StubRule json.Unmarshal error: %v", err)
 			}
 
 			rawResult, err := json.Marshal(stubRule)
