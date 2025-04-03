@@ -121,6 +121,15 @@ func TestSome(t *testing.T) {
 }
 ```
 
+Alternatively, you can use `wiremock` to record stubs and play them back:
+
+```go
+wiremockClient.StartRecording("https://my.saas.endpoint.com")
+defer wiremockClient.StopRecording()
+//… do some requests to Wiremock
+//… do some assertions using your Saas' SDK
+```
+
 ## Support for Authentication Schemes
 
 The library provides support for common authentication schemes, i.e.: Basic Authentication, API Token Authentication, Bearer Authentication, Digest Access Authentication.
