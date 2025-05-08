@@ -154,6 +154,16 @@ func TestStubRule_ToJson(t *testing.T) {
 				WillReturnResponse(OK()),
 			ExpectedFileName: "url-path-templating.json",
 		},
+		{
+			Name: "StubRuleWithScenarioWithTransformerParameters",
+			StubRule: Get(URLPathTemplate("/templated")).
+				WillReturnResponse(
+					NewResponse().
+						WithStatus(http.StatusOK).
+						WithTransformers("response-template").
+						WithTransformerParameter("MyCustomParameter", "Parameter Value")),
+			ExpectedFileName: "expected-template-transformerParameters.json",
+		},
 	}
 
 	for _, tc := range testCases {
