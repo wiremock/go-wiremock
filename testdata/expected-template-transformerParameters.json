@@ -1,0 +1,15 @@
+{
+  "uuid": "%s",
+  "id": "%s",
+  "request" : {
+    "method": "GET",
+    "urlPathTemplate" : "/templated"
+  },
+  "response" : {
+    "status" : 200,
+    "transformers": ["response-template"],
+    "transformerParameters": {
+      "MyCustomParameter": "Parameter Value"
+    }
+  }
+}
