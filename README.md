@@ -9,6 +9,19 @@
     <img width="128px" align="right" src="docs/images/logo/logo.png" alt="Go WireMock Logo"/>
 </a>
 
+---
+
+<table>
+<tr>
+<td>
+<img src="https://wiremock.org/images/wiremock-cloud/wiremock_cloud_logo.png" alt="WireMock Cloud Logo" height="20" align="left">
+<strong>WireMock open source is supported by <a href="https://www.wiremock.io/cloud-overview?utm_source=github.com&utm_campaign=wiremock-README.md-banner">WireMock Cloud</a>. Please consider trying it out if your team needs advanced capabilities such as OpenAPI, dynamic state, data sources and more.</strong>
+</td>
+</tr>
+</table>
+
+---
+
 The Golang client library to stub API resources in [WireMock](https://wiremock.org) using its
 [REST API](https://wiremock.org/docs/api/).
 The project connects to the instance and allows
@@ -181,7 +194,7 @@ func main() {
 }
 
 ```
- 
+
 ## Recording Stubs
 
 Alternatively, you can use `wiremock` to record stubs and play them back:
