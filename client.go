@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 const (
@@ -182,6 +183,55 @@ func (c *Client) DeleteStubByID(id string) error {
 // DeleteStub deletes stub mapping.
 func (c *Client) DeleteStub(s *StubRule) error {
 	return c.DeleteStubByID(s.UUID())
+}
+
+// StartRecording starts a recording.
+func (c *Client) StartRecording(targetBaseUrl string) error {
+	requestBody := fmt.Sprintf(`{"targetBaseUrl":"%s"}`, targetBaseUrl)
+	res, err := http.Post(
+		fmt.Sprintf("%s/%s/recordings/start", c.url, wiremockAdminURN),
+		"application/json",
+		strings.NewReader(requestBody),
+	)
+	if err != nil {
+		return fmt.Errorf("start recording error: %s", err.Error())
+	}
+
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		bodyBytes, err := io.ReadAll(res.Body)
+		if err != nil {
+			return fmt.Errorf("read response error: %s", err.Error())
+		}
+
+		return fmt.Errorf("bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
+	}
+
+	return err
+}
+
+// StopRecording stops a recording.
+func (c *Client) StopRecording() error {
+	res, err := http.Post(
+		fmt.Sprintf("%s/%s/recordings/stop", c.url, wiremockAdminURN),
+		"application/json",
+		nil,
+	)
+	if err != nil {
+		return fmt.Errorf("stop recording error: %s", err.Error())
+	}
+
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		bodyBytes, err := io.ReadAll(res.Body)
+		if err != nil {
+			return fmt.Errorf("read response error: %s", err.Error())
+		}
+
+		return fmt.Errorf("bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
+	}
+
+	return nil
 }
 
 func (c *Client) GetAllServeEvents() (*ServeEvent, error) {

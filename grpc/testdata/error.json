@@ -1,0 +1,15 @@
+{
+  "uuid": "%s",
+  "id": "%s",
+  "request" : {
+    "urlPath" : "/com.example.grpc.GreetingService/greeting",
+    "method" : "POST"
+  },
+  "response" : {
+    "status" : 200,
+    "headers" : {
+      "grpc-status-name" : "UNAVAILABLE",
+      "grpc-status-reason": "Unavailable"
+    }
+  }
+}

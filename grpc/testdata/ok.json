@@ -1,0 +1,20 @@
+{
+  "uuid": "%s",
+  "id": "%s",
+  "request" : {
+    "urlPath" : "/com.example.grpc.GreetingService/greeting",
+    "method" : "POST",
+    "bodyPatterns": [
+      {
+        "equalToJson": "{\"name\":\"Tom\"}"
+      }
+    ]
+  },
+  "response" : {
+    "status" : 200,
+    "body": "{\"greeting\":\"Hello Tom\"}",
+    "headers" : {
+      "grpc-status-name" : "OK"
+    }
+  }
+}

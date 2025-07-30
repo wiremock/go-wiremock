@@ -53,3 +53,14 @@ func URLMatching(url string) URLMatcher {
 		value:    url,
 	}
 }
+
+// URLPathTemplate URL paths can be matched using URI templates, conforming to the same subset of the URI template standard as used in OpenAPI.
+// Path variable matchers can also be used in the same manner as query and form parameters.
+// Required wiremock >= 3.0.0
+// Example: /contacts/{contactId}/addresses/{addressId}
+func URLPathTemplate(url string) URLMatcher {
+	return URLMatcher{
+		strategy: URLPathTemplateRule,
+		value:    url,
+	}
+}

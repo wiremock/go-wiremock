@@ -45,6 +45,12 @@ func (s *StubRule) WithQueryParam(param string, matcher MatcherInterface) *StubR
 	return s
 }
 
+// WithPathParam adds path param and returns *StubRule
+func (s *StubRule) WithPathParam(param string, matcher MatcherInterface) *StubRule {
+	s.request.WithPathParam(param, matcher)
+	return s
+}
+
 // WithPort adds port and returns *StubRule
 func (s *StubRule) WithPort(port int64) *StubRule {
 	s.request.WithPort(port)
@@ -97,7 +103,7 @@ func (s *StubRule) WithMultipartPattern(pattern *MultipartPattern) *StubRule {
 func (s *StubRule) WithAuthToken(tokenMatcher BasicParamMatcher) *StubRule {
 	methodPrefix := "Token "
 	m := addAuthMethodToMatcher(tokenMatcher, methodPrefix)
-	s.WithHeader(authorizationHeader, HasExactly(StartsWith(methodPrefix), m))
+	s.WithHeader(authorizationHeader, StartsWith(methodPrefix).And(m))
 	return s
 }
 
@@ -113,7 +119,7 @@ func (s *StubRule) WithBearerToken(tokenMatcher BasicParamMatcher) *StubRule {
 func (s *StubRule) WithDigestAuth(matcher BasicParamMatcher) *StubRule {
 	methodPrefix := "Digest "
 	m := addAuthMethodToMatcher(matcher, methodPrefix)
-	s.WithHeader(authorizationHeader, HasExactly(StartsWith(methodPrefix), m))
+	s.WithHeader(authorizationHeader, StartsWith(methodPrefix).And(m))
 	return s
 }
 

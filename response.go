@@ -19,21 +19,27 @@ type ResponseInterface interface {
 }
 
 type Response struct {
-	body                *string
-	base64Body          []byte
-	bodyFileName        *string
-	jsonBody            interface{}
-	headers             map[string]string
-	status              int64
-	delayDistribution   DelayInterface
-	chunkedDribbleDelay *chunkedDribbleDelay
-	fault               *Fault
+	body                  *string
+	base64Body            []byte
+	bodyFileName          *string
+	jsonBody              interface{}
+	headers               map[string]string
+	status                int64
+	delayDistribution     DelayInterface
+	chunkedDribbleDelay   *chunkedDribbleDelay
+	fault                 *Fault
+	transformers          []string
+	transformerParameters map[string]string
 }
 
 func NewResponse() Response {
 	return Response{
 		status: http.StatusOK,
 	}
+}
+
+func OK() Response {
+	return NewResponse().WithStatus(http.StatusOK)
 }
 
 // WithLogNormalRandomDelay sets log normal random delay for response
@@ -122,6 +128,29 @@ func (r Response) WithBodyFile(fileName string) Response {
 	return r
 }
 
+// WithTransformers sets transformers for response
+func (r Response) WithTransformers(transformers ...string) Response {
+	r.transformers = transformers
+	return r
+}
+
+// WithTransformerParameter sets transformer parameters for response
+func (r Response) WithTransformerParameter(key, value string) Response {
+	if r.transformerParameters == nil {
+		r.transformerParameters = make(map[string]string)
+	}
+
+	r.transformerParameters[key] = value
+
+	return r
+}
+
+// WithTransformerParameters sets transformer parameters for response
+func (r Response) WithTransformerParameters(transformerParameters map[string]string) Response {
+	r.transformerParameters = transformerParameters
+	return r
+}
+
 func (r Response) ParseResponse() map[string]interface{} {
 	jsonMap := map[string]interface{}{
 		"status": r.status,
@@ -157,6 +186,14 @@ func (r Response) ParseResponse() map[string]interface{} {
 
 	if r.fault != nil {
 		jsonMap["fault"] = *r.fault
+	}
+
+	if r.transformers != nil {
+		jsonMap["transformers"] = r.transformers
+	}
+
+	if r.transformerParameters != nil {
+		jsonMap["transformerParameters"] = r.transformerParameters
 	}
 
 	return jsonMap

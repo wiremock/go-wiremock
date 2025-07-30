@@ -71,16 +71,19 @@ func TestStubRule_ToJson(t *testing.T) {
 			ExpectedFileName: "expected-template-scenario.json",
 		},
 		{
+			Name: "MustEqualToJson",
+			StubRule: NewStubRule("PATCH", URLMatching("/example")).
+				WithBodyPattern(MustEqualToJson(map[string]interface{}{"meta": "information"}, IgnoreArrayOrder, IgnoreExtraElements)),
+			ExpectedFileName: "must-equal-to-json.json",
+		},
+		{
 			Name: "StubRuleWithBearerToken_StartsWithMatcher",
 			StubRule: Post(URLPathEqualTo("/example")).
 				WithHost(EqualTo("localhost")).
 				WithScheme("http").
 				WithPort(8080).
 				WithBearerToken(StartsWith("token")).
-				WillReturnResponse(
-					NewResponse().
-						WithStatus(http.StatusOK),
-				),
+				WillReturnResponse(OK()),
 			ExpectedFileName: "expected-template-bearer-auth-startsWith.json",
 		},
 		{
@@ -90,10 +93,7 @@ func TestStubRule_ToJson(t *testing.T) {
 				WithScheme("http").
 				WithPort(8080).
 				WithBearerToken(EqualTo("token")).
-				WillReturnResponse(
-					NewResponse().
-						WithStatus(http.StatusOK),
-				),
+				WillReturnResponse(OK()),
 			ExpectedFileName: "expected-template-bearer-auth-equalTo.json",
 		},
 		{
@@ -103,10 +103,7 @@ func TestStubRule_ToJson(t *testing.T) {
 				WithScheme("http").
 				WithPort(8080).
 				WithBearerToken(Contains("token")).
-				WillReturnResponse(
-					NewResponse().
-						WithStatus(http.StatusOK),
-				),
+				WillReturnResponse(OK()),
 			ExpectedFileName: "expected-template-bearer-auth-contains.json",
 		},
 		{
@@ -116,11 +113,56 @@ func TestStubRule_ToJson(t *testing.T) {
 				WithScheme("http").
 				WithPort(8080).
 				WithBearerToken(EqualTo("token123").And(StartsWith("token"))).
+				WillReturnResponse(OK()),
+			ExpectedFileName: "expected-template-bearer-auth-logicalMatcher.json",
+		},
+		{
+			Name: "NotLogicalMatcher",
+			StubRule: Post(URLPathEqualTo("/example")).
+				WithQueryParam("firstName", Not(EqualTo("John").Or(EqualTo("Jack")))).
+				WillReturnResponse(OK()),
+			ExpectedFileName: "not-logical-expression.json",
+		},
+		{
+			Name: "JsonSchemaMatcher",
+			StubRule: Post(URLPathEqualTo("/example")).
+				WithQueryParam("firstName", MatchesJsonSchema(
+					`{
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "tag": {
+      "type": "string"
+    }
+  }
+}`,
+					"V202012",
+				)).
+				WillReturnResponse(OK()),
+			ExpectedFileName: "matches-Json-schema.json",
+		},
+		{
+			Name: "URLPathTemplateMatcher",
+			StubRule: Get(URLPathTemplate("/contacts/{contactId}/addresses/{addressId}")).
+				WithPathParam("contactId", EqualTo("12345")).
+				WithPathParam("addressId", EqualTo("99876")).
+				WillReturnResponse(OK()),
+			ExpectedFileName: "url-path-templating.json",
+		},
+		{
+			Name: "StubRuleWithScenarioWithTransformerParameters",
+			StubRule: Get(URLPathTemplate("/templated")).
 				WillReturnResponse(
 					NewResponse().
-						WithStatus(http.StatusOK),
-				),
-			ExpectedFileName: "expected-template-bearer-auth-logicalMatcher.json",
+						WithStatus(http.StatusOK).
+						WithTransformers("response-template").
+						WithTransformerParameter("MyCustomParameter", "Parameter Value")),
+			ExpectedFileName: "expected-template-transformerParameters.json",
 		},
 	}
 
@@ -136,7 +178,7 @@ func TestStubRule_ToJson(t *testing.T) {
 			var expected map[string]interface{}
 			err = json.Unmarshal([]byte(fmt.Sprintf(string(rawExpectedRequestBody), stubRule.uuid, stubRule.uuid)), &expected)
 			if err != nil {
-				t.Fatalf("StubRole json.Unmarshal error: %v", err)
+				t.Fatalf("StubRule json.Unmarshal error: %v", err)
 			}
 
 			rawResult, err := json.Marshal(stubRule)

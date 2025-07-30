@@ -2,16 +2,17 @@ package wiremock
 
 // Types of params matching.
 const (
-	ParamEqualTo         ParamMatchingStrategy = "equalTo"
-	ParamMatches         ParamMatchingStrategy = "matches"
-	ParamContains        ParamMatchingStrategy = "contains"
-	ParamEqualToXml      ParamMatchingStrategy = "equalToXml"
-	ParamEqualToJson     ParamMatchingStrategy = "equalToJson"
-	ParamMatchesXPath    ParamMatchingStrategy = "matchesXPath"
-	ParamMatchesJsonPath ParamMatchingStrategy = "matchesJsonPath"
-	ParamAbsent          ParamMatchingStrategy = "absent"
-	ParamDoesNotMatch    ParamMatchingStrategy = "doesNotMatch"
-	ParamDoesNotContains ParamMatchingStrategy = "doesNotContain"
+	ParamEqualTo           ParamMatchingStrategy = "equalTo"
+	ParamMatches           ParamMatchingStrategy = "matches"
+	ParamContains          ParamMatchingStrategy = "contains"
+	ParamEqualToXml        ParamMatchingStrategy = "equalToXml"
+	ParamEqualToJson       ParamMatchingStrategy = "equalToJson"
+	ParamMatchesXPath      ParamMatchingStrategy = "matchesXPath"
+	ParamMatchesJsonPath   ParamMatchingStrategy = "matchesJsonPath"
+	ParamAbsent            ParamMatchingStrategy = "absent"
+	ParamDoesNotMatch      ParamMatchingStrategy = "doesNotMatch"
+	ParamDoesNotContains   ParamMatchingStrategy = "doesNotContain"
+	ParamMatchesJsonSchema ParamMatchingStrategy = "matchesJsonSchema"
 )
 
 // Types of url matching.
@@ -20,6 +21,7 @@ const (
 	URLPathEqualToRule  URLMatchingStrategy = "urlPath"
 	URLPathMatchingRule URLMatchingStrategy = "urlPathPattern"
 	URLMatchingRule     URLMatchingStrategy = "urlPattern"
+	URLPathTemplateRule URLMatchingStrategy = "urlPathTemplate"
 )
 
 // Type of less strict matching flags.

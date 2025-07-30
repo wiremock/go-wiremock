@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package com.example.greeting.v1;
+
+option java_multiple_files = true;
+
+option go_package = "grpc/testdata";
+
+message GreetingRequest {
+  string name = 1;
+}
+
+message GreetingResponse {
+  string greeting = 1;
+}
+
+service GreetingService {
+  rpc greet(GreetingRequest) returns (GreetingResponse);
+}

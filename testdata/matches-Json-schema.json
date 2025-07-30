@@ -1,0 +1,17 @@
+{
+  "uuid": "%s",
+  "id": "%s",
+  "request": {
+    "method": "POST",
+    "urlPath": "/example",
+    "queryParameters": {
+      "firstName": {
+        "matchesJsonSchema" : "{\n  \"type\": \"object\",\n  \"required\": [\n    \"name\"\n  ],\n  \"properties\": {\n    \"name\": {\n      \"type\": \"string\"\n    },\n    \"tag\": {\n      \"type\": \"string\"\n    }\n  }\n}",
+        "schemaVersion" : "V202012"
+      }
+    }
+  },
+  "response": {
+    "status": 200
+  }
+}
