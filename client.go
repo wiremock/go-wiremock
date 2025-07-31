@@ -29,19 +29,19 @@ func NewClient(url string) *Client {
 func (c *Client) StubFor(stubRule *StubRule) error {
 	requestBody, err := stubRule.MarshalJSON()
 	if err != nil {
-		return fmt.Errorf("build stub request error: %s", err.Error())
+		return fmt.Errorf("build stub request error: %w", err)
 	}
 
 	res, err := http.Post(fmt.Sprintf("%s/%s", c.url, wiremockAdminMappingsURN), "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
-		return fmt.Errorf("stub request error: %s", err.Error())
+		return fmt.Errorf("stub request error: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusCreated {
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
-			return fmt.Errorf("read response error: %s", err.Error())
+			return fmt.Errorf("read response error: %w", err)
 		}
 
 		return fmt.Errorf("bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
@@ -54,12 +54,12 @@ func (c *Client) StubFor(stubRule *StubRule) error {
 func (c *Client) Clear() error {
 	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/%s", c.url, wiremockAdminMappingsURN), nil)
 	if err != nil {
-		return fmt.Errorf("build cleare Request error: %s", err.Error())
+		return fmt.Errorf("build cleare Request error: %w", err)
 	}
 
 	res, err := (&http.Client{}).Do(req)
 	if err != nil {
-		return fmt.Errorf("clear Request error: %s", err.Error())
+		return fmt.Errorf("clear Request error: %w", err)
 	}
 	defer res.Body.Close()
 
@@ -74,14 +74,14 @@ func (c *Client) Clear() error {
 func (c *Client) Reset() error {
 	res, err := http.Post(fmt.Sprintf("%s/%s/reset", c.url, wiremockAdminMappingsURN), "application/json", nil)
 	if err != nil {
-		return fmt.Errorf("reset Request error: %s", err.Error())
+		return fmt.Errorf("reset Request error: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
-			return fmt.Errorf("read response error: %s", err.Error())
+			return fmt.Errorf("read response error: %w", err)
 		}
 
 		return fmt.Errorf("bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
@@ -94,14 +94,14 @@ func (c *Client) Reset() error {
 func (c *Client) ResetAllScenarios() error {
 	res, err := http.Post(fmt.Sprintf("%s/%s/scenarios/reset", c.url, wiremockAdminURN), "application/json", nil)
 	if err != nil {
-		return fmt.Errorf("reset all scenarios Request error: %s", err.Error())
+		return fmt.Errorf("reset all scenarios Request error: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
-			return fmt.Errorf("read response error: %s", err.Error())
+			return fmt.Errorf("read response error: %w", err)
 		}
 
 		return fmt.Errorf("bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
@@ -114,18 +114,18 @@ func (c *Client) ResetAllScenarios() error {
 func (c *Client) GetCountRequests(r *Request) (int64, error) {
 	requestBody, err := r.MarshalJSON()
 	if err != nil {
-		return 0, fmt.Errorf("get count requests: build error: %s", err.Error())
+		return 0, fmt.Errorf("get count requests: build error: %w", err)
 	}
 
 	res, err := http.Post(fmt.Sprintf("%s/%s/requests/count", c.url, wiremockAdminURN), "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
-		return 0, fmt.Errorf("get count requests: %s", err.Error())
+		return 0, fmt.Errorf("get count requests: %w", err)
 	}
 	defer res.Body.Close()
 
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return 0, fmt.Errorf("get count requests: read response error: %s", err.Error())
+		return 0, fmt.Errorf("get count requests: read response error: %w", err)
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -138,7 +138,7 @@ func (c *Client) GetCountRequests(r *Request) (int64, error) {
 
 	err = json.Unmarshal(bodyBytes, &countRequestsResponse)
 	if err != nil {
-		return 0, fmt.Errorf("get count requests: read json error: %s", err.Error())
+		return 0, fmt.Errorf("get count requests: read json error: %w", err)
 	}
 
 	return countRequestsResponse.Count, nil
@@ -158,12 +158,12 @@ func (c *Client) Verify(r *Request, expectedCount int64) (bool, error) {
 func (c *Client) DeleteStubByID(id string) error {
 	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/%s/%s", c.url, wiremockAdminMappingsURN, id), nil)
 	if err != nil {
-		return fmt.Errorf("delete stub by id: build request error: %s", err.Error())
+		return fmt.Errorf("delete stub by id: build request error: %w", err)
 	}
 
 	res, err := (&http.Client{}).Do(req)
 	if err != nil {
-		return fmt.Errorf("delete stub by id: request error: %s", err.Error())
+		return fmt.Errorf("delete stub by id: request error: %w", err)
 	}
 
 	defer res.Body.Close()
@@ -171,7 +171,7 @@ func (c *Client) DeleteStubByID(id string) error {
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
-			return fmt.Errorf("read response error: %s", err.Error())
+			return fmt.Errorf("read response error: %w", err)
 		}
 
 		return fmt.Errorf("bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
@@ -194,14 +194,14 @@ func (c *Client) StartRecording(targetBaseUrl string) error {
 		strings.NewReader(requestBody),
 	)
 	if err != nil {
-		return fmt.Errorf("start recording error: %s", err.Error())
+		return fmt.Errorf("start recording error: %w", err)
 	}
 
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
-			return fmt.Errorf("read response error: %s", err.Error())
+			return fmt.Errorf("read response error: %w", err)
 		}
 
 		return fmt.Errorf("bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
@@ -218,14 +218,14 @@ func (c *Client) StopRecording() error {
 		nil,
 	)
 	if err != nil {
-		return fmt.Errorf("stop recording error: %s", err.Error())
+		return fmt.Errorf("stop recording error: %w", err)
 	}
 
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
-			return fmt.Errorf("read response error: %s", err.Error())
+			return fmt.Errorf("read response error: %w", err)
 		}
 
 		return fmt.Errorf("bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
@@ -237,13 +237,13 @@ func (c *Client) StopRecording() error {
 func (c *Client) GetAllServeEvents() (*ServeEvent, error) {
 	res, err := http.Get(fmt.Sprintf("%s/%s", c.url, wiremockAdminRequestsURN))
 	if err != nil {
-		return nil, fmt.Errorf("get all requests: %s", err.Error())
+		return nil, fmt.Errorf("get all requests: %w", err)
 	}
 	defer res.Body.Close()
 
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("get all requests: read response error: %s", err.Error())
+		return nil, fmt.Errorf("get all requests: read response error: %w", err)
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -253,7 +253,7 @@ func (c *Client) GetAllServeEvents() (*ServeEvent, error) {
 	var response ServeEvent
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
-		return nil, fmt.Errorf("get all requests: error unmarshalling response: %s", err.Error())
+		return nil, fmt.Errorf("get all requests: error unmarshalling response: %w", err)
 	}
 	return &response, nil
 }
@@ -261,19 +261,19 @@ func (c *Client) GetAllServeEvents() (*ServeEvent, error) {
 func (c *Client) DeleteAllRequests() error {
 	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/%s", c.url, wiremockAdminRequestsURN), nil)
 	if err != nil {
-		return fmt.Errorf("delete all requests: build error: %s", err.Error())
+		return fmt.Errorf("delete all requests: build error: %w", err)
 	}
 	res, err := (&http.Client{}).Do(req)
 
 	if err != nil {
-		return fmt.Errorf("delete all requests: request error: %s", err.Error())
+		return fmt.Errorf("delete all requests: request error: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
-			return fmt.Errorf("read response error: %s", err.Error())
+			return fmt.Errorf("read response error: %w", err)
 		}
 		return fmt.Errorf("bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
 	}
@@ -283,12 +283,12 @@ func (c *Client) DeleteAllRequests() error {
 func (c *Client) GetRequestsById(requestId string) (*RequestElement, error) {
 	res, err := http.Get(fmt.Sprintf("%s/%s/%s", c.url, wiremockAdminRequestsURN, requestId))
 	if err != nil {
-		return nil, fmt.Errorf("get request by id: build request error: %s", err.Error())
+		return nil, fmt.Errorf("get request by id: build request error: %w", err)
 	}
 	defer res.Body.Close()
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("get request by id: read response error: %s", err.Error())
+		return nil, fmt.Errorf("get request by id: read response error: %w", err)
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -298,7 +298,7 @@ func (c *Client) GetRequestsById(requestId string) (*RequestElement, error) {
 	var response RequestElement
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
-		return nil, fmt.Errorf("get request by id: error unmarshalling response: %s", err.Error())
+		return nil, fmt.Errorf("get request by id: error unmarshalling response: %w", err)
 	}
 	return &response, nil
 }
@@ -306,19 +306,19 @@ func (c *Client) GetRequestsById(requestId string) (*RequestElement, error) {
 func (c *Client) DeleteRequestById(requestId string) error {
 	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/%s/%s", c.url, wiremockAdminRequestsURN, requestId), nil)
 	if err != nil {
-		return fmt.Errorf("delete request by id: build request error: %s", err.Error())
+		return fmt.Errorf("delete request by id: build request error: %w", err)
 	}
 
 	res, err := (&http.Client{}).Do(req)
 	if err != nil {
-		return fmt.Errorf("delete request by id: request error: %s", err.Error())
+		return fmt.Errorf("delete request by id: request error: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
-			return fmt.Errorf("delete request by id: read response error: %s", err.Error())
+			return fmt.Errorf("delete request by id: read response error: %w", err)
 		}
 		return fmt.Errorf("delete request by id: bad response status: %d, response: %s", res.StatusCode, string(bodyBytes))
 	}
@@ -328,18 +328,18 @@ func (c *Client) DeleteRequestById(requestId string) error {
 func (c *Client) DeleteRequestBy(r *Request) (*ServeEvents, error) {
 	requestBody, err := r.MarshalJSON()
 	if err != nil {
-		return nil, fmt.Errorf("delete request by: build error: %s", err.Error())
+		return nil, fmt.Errorf("delete request by: build error: %w", err)
 	}
 
 	res, err := http.Post(fmt.Sprintf("%s/%s/remove", c.url, wiremockAdminRequestsURN), "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
-		return nil, fmt.Errorf("delete request by: request error: %s", err.Error())
+		return nil, fmt.Errorf("delete request by: request error: %w", err)
 	}
 	defer res.Body.Close()
 
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("delete request by: read response error: %s", err.Error())
+		return nil, fmt.Errorf("delete request by: read response error: %w", err)
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -349,7 +349,7 @@ func (c *Client) DeleteRequestBy(r *Request) (*ServeEvents, error) {
 	var serveEvents ServeEvents
 	err = json.Unmarshal(bodyBytes, &serveEvents)
 	if err != nil {
-		return nil, fmt.Errorf("get request by id: error unmarshalling response: %s", err.Error())
+		return nil, fmt.Errorf("get request by id: error unmarshalling response: %w", err)
 	}
 	return &serveEvents, nil
 }
@@ -357,18 +357,18 @@ func (c *Client) DeleteRequestBy(r *Request) (*ServeEvents, error) {
 func (c *Client) FindRequestBy(r *Request) (*ServeEvents, error) {
 	requestBody, err := r.MarshalJSON()
 	if err != nil {
-		return nil, fmt.Errorf("find request by: build error: %s", err.Error())
+		return nil, fmt.Errorf("find request by: build error: %w", err)
 	}
 
 	res, err := http.Post(fmt.Sprintf("%s/%s/remove", c.url, wiremockAdminRequestsURN), "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
-		return nil, fmt.Errorf("find request by: request error: %s", err.Error())
+		return nil, fmt.Errorf("find request by: request error: %w", err)
 	}
 	defer res.Body.Close()
 
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("get count requests: read response error: %s", err.Error())
+		return nil, fmt.Errorf("get count requests: read response error: %w", err)
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -378,7 +378,7 @@ func (c *Client) FindRequestBy(r *Request) (*ServeEvents, error) {
 	var serveEvents ServeEvents
 	err = json.Unmarshal(bodyBytes, &serveEvents)
 	if err != nil {
-		return nil, fmt.Errorf("get count requests: read json error: %s", err.Error())
+		return nil, fmt.Errorf("get count requests: read json error: %w", err)
 	}
 	return &serveEvents, nil
 }
