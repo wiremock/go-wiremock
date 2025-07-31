@@ -49,7 +49,7 @@ type Request struct {
 	BrowserProxyRequest bool    `json:"browserProxyRequest,omitempty"`
 	LoggedDate          int64   `json:"loggedDate,omitempty"`
 	BodyAsBase64        string  `json:"bodyAsBase64,omitempty"`
-	Body                []byte  `json:"body,omitempty"`
+	Body                string  `json:"body,omitempty"`
 	Protocol            string  `json:"protocol,omitempty"`
 	Scheme              string  `json:"scheme,omitempty"`
 	LoggedDateString    string  `json:"loggedDateString,omitempty"`
@@ -69,7 +69,7 @@ type ResponseDefinition struct {
 type Response struct {
 	Headers      Headers `json:"headers,omitempty"`
 	BodyAsBase64 string  `json:"bodyAsBase64,omitempty"`
-	Body         []byte  `json:"body,omitempty"`
+	Body         string  `json:"body,omitempty"`
 	Status       int64   `json:"status,omitempty"`
 }
 
