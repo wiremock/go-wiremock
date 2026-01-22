@@ -38,7 +38,7 @@ func (c *Client) StubFor(stubRule *StubRule) error {
 	if err != nil {
 		return fmt.Errorf("stub request error: %w", err)
 	}
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	if res.StatusCode != http.StatusCreated {
 		bodyBytes, err := io.ReadAll(res.Body)
@@ -56,14 +56,14 @@ func (c *Client) StubFor(stubRule *StubRule) error {
 func (c *Client) Clear() error {
 	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/%s", c.url, wiremockAdminMappingsURN), nil)
 	if err != nil {
-		return fmt.Errorf("build cleare Request error: %w", err)
+		return fmt.Errorf("build clear Request error: %w", err)
 	}
 
 	res, err := (&http.Client{}).Do(req)
 	if err != nil {
 		return fmt.Errorf("clear Request error: %w", err)
 	}
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf("bad response status: %d", res.StatusCode)
@@ -78,7 +78,7 @@ func (c *Client) Reset() error {
 	if err != nil {
 		return fmt.Errorf("reset Request error: %w", err)
 	}
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(res.Body)
@@ -98,7 +98,7 @@ func (c *Client) ResetAllScenarios() error {
 	if err != nil {
 		return fmt.Errorf("reset all scenarios Request error: %w", err)
 	}
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(res.Body)
@@ -123,7 +123,7 @@ func (c *Client) GetCountRequests(r *Request) (int64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("get count requests: %w", err)
 	}
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -162,7 +162,7 @@ func (c *Client) GetAllRequests() (*journal.GetAllRequestsResponse, error) {
 	if err != nil {
 		return nil, fmt.Errorf("get all requests: %w", err)
 	}
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -187,7 +187,7 @@ func (c *Client) GetRequestByID(requestID string) (*journal.GetRequestResponse, 
 	if err != nil {
 		return nil, fmt.Errorf("get request by id: build request error: %w", err)
 	}
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -217,7 +217,7 @@ func (c *Client) FindRequestsByCriteria(r *Request) (*journal.FindRequestsByCrit
 	if err != nil {
 		return nil, fmt.Errorf("find requests by criteria: request error: %w", err)
 	}
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -242,7 +242,7 @@ func (c *Client) FindUnmatchedRequests() (*journal.FindUnmatchedRequestsResponse
 	if err != nil {
 		return nil, fmt.Errorf("find unmatched requests: request error: %w", err)
 	}
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -272,7 +272,7 @@ func (c *Client) DeleteAllRequests() error {
 	if err != nil {
 		return fmt.Errorf("delete all requests: request error: %w", err)
 	}
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(res.Body)
@@ -295,7 +295,7 @@ func (c *Client) DeleteRequestByID(requestID string) error {
 	if err != nil {
 		return fmt.Errorf("delete request by id: request error: %w", err)
 	}
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(res.Body)
@@ -318,7 +318,7 @@ func (c *Client) DeleteRequestsByCriteria(r *Request) (*journal.DeleteRequestByC
 	if err != nil {
 		return nil, fmt.Errorf("delete requests by criteria: request error: %w", err)
 	}
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -349,7 +349,7 @@ func (c *Client) DeleteStubByID(id string) error {
 		return fmt.Errorf("delete stub by id: request error: %w", err)
 	}
 
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(res.Body)
@@ -380,7 +380,7 @@ func (c *Client) StartRecording(targetBaseUrl string) error {
 		return fmt.Errorf("start recording error: %w", err)
 	}
 
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
@@ -404,7 +404,7 @@ func (c *Client) StopRecording() error {
 		return fmt.Errorf("stop recording error: %w", err)
 	}
 
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
